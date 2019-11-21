@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 import android.content.Intent;
 import android.widget.EditText;
 
@@ -22,11 +23,18 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-
+        userEntry = findViewById(R.id.register_username_entry);
+        passwordEntry = findViewById(R.id.register_password_entry);
+        rePasswordEntry = findViewById(R.id.register_repassword_entry);
     }
 
     public void onRegister(View view){
+        if(!passwordEntry.equals(rePasswordEntry))
+        {
+            Toast.makeText(getApplicationContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
+        }
 
+        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
     }
 
     private EditText userEntry;

@@ -5,4 +5,7 @@
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="re_password">Re-password</string>
+    <string name="new_account">New account?</string>
+    <string name="register_here"><u>Register here!</u></string>
+    <string name="remember_me">Remember me</string>
 </resources>
