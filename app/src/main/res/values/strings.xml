@@ -8,4 +8,11 @@
     <string name="new_account">New account?</string>
     <string name="register_here"><u>Register here!</u></string>
     <string name="remember_me">Remember me</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="profile">Profile</string>
+    <string name="messages">Messages</string>
+    <string name="forum">Forum</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
