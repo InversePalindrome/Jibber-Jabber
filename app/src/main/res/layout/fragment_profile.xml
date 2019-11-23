@@ -8,28 +8,92 @@
     android:contentDescription="@string/profile_picture"
     tools:context=".ProfileFragment">
 
+    <ImageButton
+        android:id="@+id/edit_about_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="258dp"
+        android:contentDescription="@string/edit_about"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pencil_edit_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/profile_about_label"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
-        android:id="@+id/profile_profile_label"
+        android:id="@+id/profile_about_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="31dp"
-        android:layout_marginBottom="434dp"
-        android:fontFamily="@font/baloo"
+        android:layout_marginStart="57dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="1dp"
+        android:text="@string/about"
         android:textColor="#000000"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintBottom_toBottomOf="@+id/edit_about_button"
+        app:layout_constraintEnd_toStartOf="@+id/edit_about_button"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/profile_profile_entry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:fontFamily="sans-serif"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/profile_name_label"
+        app:layout_constraintStart_toStartOf="@+id/profile_name_label"
+        app:layout_constraintTop_toBottomOf="@+id/profile_name_label" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/profile_profile_image"
         android:layout_width="180dp"
-        android:layout_height="0dp"
+        android:layout_height="190dp"
         android:layout_marginTop="60dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="62dp"
+        android:contentDescription="@string/profile_picture"
         android:src="@drawable/default_profile_icon"
-        app:layout_constraintBottom_toTopOf="@+id/profile_profile_label"
+        app:layout_constraintBottom_toTopOf="@+id/profile_profile_entry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/profile_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="57dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="49dp"
+        android:text="@string/name"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/edit_about_button"
+        app:layout_constraintEnd_toStartOf="@+id/edit_name_button"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/profile_about_entry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/profile_about_label"
+        app:layout_constraintStart_toStartOf="@+id/profile_about_label"
+        app:layout_constraintTop_toBottomOf="@+id/profile_about_label" />
+
+    <ImageButton
+        android:id="@+id/edit_name_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="258dp"
+        android:contentDescription="@string/edit_name"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pencil_edit_button"
+        app:layout_constraintBottom_toBottomOf="@+id/profile_name_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/profile_name_label" />
 </androidx.constraintlayout.widget.ConstraintLayout>

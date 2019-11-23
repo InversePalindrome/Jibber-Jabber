@@ -12,4 +12,8 @@
     <string name="profile">Profile</string>
     <string name="messages">Messages</string>
     <string name="forum">Forum</string>
+    <string name="name">Name:</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="about">About:</string>
+    <string name="edit_about">Edit About</string>
 </resources>
