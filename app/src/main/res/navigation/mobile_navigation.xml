@@ -2,22 +2,21 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bottom_navigation"
-    app:startDestination="@id/forum_fragment">
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/forum_fragment">
 
     <fragment
         android:id="@+id/forum_fragment"
-        android:name="com.inversepalindrome.jibberjabber.ForumFragment"
-        android:label="Forum"
+        android:label="@string/forum"
         tools:layout="@layout/fragment_forum" />
+
     <fragment
         android:id="@+id/messages_fragment"
-        android:name="com.inversepalindrome.jibberjabber.MessagesFragment"
-        android:label="Messages"
+        android:label="@string/messages"
         tools:layout="@layout/fragment_messages" />
+
     <fragment
         android:id="@+id/profile_fragment"
-        android:name="com.inversepalindrome.jibberjabber.ProfileFragment"
-        android:label="Profile"
+        android:label="@string/profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>
