@@ -8,14 +8,15 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ImageButton;
 
@@ -51,41 +52,54 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     private void onEditName(View view){
-        AlertDialog nameDialog = new AlertDialog.Builder(getActivity()).create();
-        nameDialog.setTitle("Edit Name");
+        AlertDialog.Builder nameDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+        nameDialogBuilder.setTitle("Edit Name");
 
-        nameDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+        final View nameLayout = getLayoutInflater().inflate(R.layout.edit_name_layout, null);
+        nameDialogBuilder.setView(nameLayout);
+
+        final EditText editNameText = nameLayout.findViewById(R.id.edit_name_entry);
+
+        nameDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                nameText.setText(editNameText.getText());
             }
         });
-        nameDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+        nameDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
 
+        AlertDialog nameDialog = nameDialogBuilder.create();
         nameDialog.show();
     }
 
     private void onEditAbout(View view){
-        AlertDialog aboutDialog = new AlertDialog. Builder(getActivity()).create();
-        aboutDialog.setTitle("Edit About");
-        aboutDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder aboutDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+        aboutDialogBuilder.setTitle("Edit About");
+
+        final View aboutLayout = getLayoutInflater().inflate(R.layout.edit_about_layout, null);
+        aboutDialogBuilder.setView(aboutLayout);
+
+        final EditText editAboutEntry = aboutLayout.findViewById(R.id.edit_about_entry);
+
+        aboutDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                aboutText.setText(editAboutEntry.getText());
             }
         });
-        aboutDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+        aboutDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
 
+        AlertDialog aboutDialog = aboutDialogBuilder.create();
         aboutDialog.show();
     }
 
