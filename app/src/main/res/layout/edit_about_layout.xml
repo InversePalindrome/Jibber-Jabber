@@ -9,6 +9,9 @@
         android:id="@+id/edit_about_entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"/>
+        android:inputType="textMultiLine"
+        android:lines="1"
+        android:minLines="1"
+        android:maxLines="6"/>
 
 </LinearLayout>

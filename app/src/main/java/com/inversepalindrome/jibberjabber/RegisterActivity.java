@@ -14,14 +14,16 @@ import android.view.View;
 import android.widget.Toast;
 import android.content.Intent;
 import android.widget.EditText;
+import android.accounts.AccountManager;
 
 
 public class RegisterActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        accountManager = AccountManager.get(getApplicationContext());
 
         userEntry = findViewById(R.id.register_username_entry);
         passwordEntry = findViewById(R.id.register_password_entry);
@@ -36,6 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         startActivity(new Intent(RegisterActivity.this, MainActivity.class));
     }
+
+    private AccountManager accountManager;
 
     private EditText userEntry;
     private EditText passwordEntry;

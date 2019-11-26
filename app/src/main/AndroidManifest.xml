@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.inversepalindrome.jibberjabber">
 
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/jibber_jabber_icon"
@@ -9,8 +11,12 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".MainActivity"></activity>
+        <service
+            android:name=".AuthenticatorService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
         <activity
             android:name=".SplashActivity"

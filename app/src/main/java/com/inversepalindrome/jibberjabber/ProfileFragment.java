@@ -22,7 +22,6 @@ import android.widget.ImageButton;
 
 
 public class ProfileFragment extends Fragment implements OnClickListener{
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

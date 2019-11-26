@@ -7,24 +7,24 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.CheckBox;
+import android.accounts.AccountManager;
+import android.accounts.AccountAuthenticatorActivity;
 import android.content.SharedPreferences;
 
 
-public class LoginActivity extends AppCompatActivity {
-
+public class LoginActivity extends AccountAuthenticatorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        accountManager = AccountManager.get(getApplicationContext());
         userEntry = findViewById(R.id.login_username_entry);
         passwordEntry = findViewById(R.id.login_password_entry);
         rememberMeCheckBox = findViewById(R.id.login_remember_me_checkbox);
@@ -65,6 +65,8 @@ public class LoginActivity extends AppCompatActivity {
     public void onRegister(View view){
         startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
+
+    private AccountManager accountManager;
 
     private EditText userEntry;
     private EditText passwordEntry;
