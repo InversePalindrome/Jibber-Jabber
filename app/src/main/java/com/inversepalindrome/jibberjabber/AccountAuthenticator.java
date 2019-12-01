@@ -81,6 +81,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         intent.putExtra(TOKEN_TYPE, authTokenType);
 
         final Bundle bundle = new Bundle();
+        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
 
         return bundle;
     }
@@ -93,6 +94,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse accountAuthenticatorResponse, Account account, String[] strings) throws NetworkErrorException {
         final Bundle bundle = new Bundle();
+        bundle.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
 
         return bundle;
     }
@@ -103,6 +105,6 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     private final Context context;
-    private final String ACCOUNT_TYPE = "user_account";
-    private final String TOKEN_TYPE = "full_access";
+    public static final String ACCOUNT_TYPE = "user_account";
+    public static final String TOKEN_TYPE = "full_access";
 }

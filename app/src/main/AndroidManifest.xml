@@ -3,6 +3,7 @@
     package="com.inversepalindrome.jibberjabber">
 
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
