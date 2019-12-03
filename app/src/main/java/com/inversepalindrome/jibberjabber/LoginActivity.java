@@ -7,6 +7,8 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,14 +34,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
 
         SharedPreferences preferences = getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("remember_me", rememberMeCheckBox.isChecked());
 
-        if(rememberMeCheckBox.isChecked()) {
+        if (rememberMeCheckBox.isChecked()) {
             editor.putString("username", userEntry.getText().toString());
             editor.putString("password", passwordEntry.getText().toString());
         }
@@ -48,38 +50,37 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
         SharedPreferences preferences = getSharedPreferences("user", Context.MODE_PRIVATE);
-        if(preferences.getBoolean("remember_me", false))
-        {
-             userEntry.setText(preferences.getString("username", ""));
-             passwordEntry.setText(preferences.getString("password", ""));
+        if (preferences.getBoolean("remember_me", false)) {
+            userEntry.setText(preferences.getString("username", ""));
+            passwordEntry.setText(preferences.getString("password", ""));
         }
     }
 
-    public void onLogin(View view){
+    public void onLogin(View view) {
         final String userName = userEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
 
-        new LoginTask(userName, password).execute();
-
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        new LoginTask(this, userName, password).execute();
     }
 
-    public void onRegister(View view){
+    public void onRegister(View view) {
         startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
-    private static class LoginTask extends AsyncTask<Void, Void, Intent>{
-        LoginTask(String userName, String password){
+    private static class LoginTask extends AsyncTask<Void, Void, Intent> {
+        LoginTask(LoginActivity loginActivity, String userName, String password) {
+            activityReference = new WeakReference<>(loginActivity);
+
             this.userName = userName;
             this.password = password;
         }
 
         @Override
-        protected Intent doInBackground(Void... params){
+        protected Intent doInBackground(Void... params) {
             final Bundle bundle = new Bundle();
 
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, userName);
@@ -92,12 +93,17 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         }
 
         @Override
-        protected void onPostExecute(Intent intent){
+        protected void onPostExecute(Intent intent) {
+            LoginActivity activity = activityReference.get();
 
+            activity.startActivity(new Intent(activity.getBaseContext(), MainActivity.class));
+            activity.finish();
         }
 
-        private final String userName;
-        private final String password;
+        private WeakReference<LoginActivity> activityReference;
+
+        private String userName;
+        private String password;
     }
 
     private AccountManager accountManager;
@@ -106,3 +112,4 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     private EditText passwordEntry;
     private CheckBox rememberMeCheckBox;
 }
+

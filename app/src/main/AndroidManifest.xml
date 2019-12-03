@@ -15,7 +15,13 @@
         <service
             android:name=".AuthenticatorService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                       android:resource="@xml/authenticator"/>
+        </service>
 
         <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
@@ -23,6 +29,7 @@
             android:name=".SplashActivity"
             android:theme="@style/AppTheme.Launcher">
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -104,7 +104,15 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         return null;
     }
 
+    private String registerAccount(String userName, String password){
+        return null;
+    }
+
+    private String authenticate(String userName, String password){
+        return null;
+    }
+
     private final Context context;
-    public static final String ACCOUNT_TYPE = "user_account";
+    public static final String ACCOUNT_TYPE = "com.jibberjabber.user";
     public static final String TOKEN_TYPE = "full_access";
 }

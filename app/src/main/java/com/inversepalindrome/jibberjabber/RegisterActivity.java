@@ -7,13 +7,16 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.lang.ref.WeakReference;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.View;
+import android.os.AsyncTask;
 import android.widget.Toast;
-import android.content.Intent;
 import android.widget.EditText;
+import android.view.View;
+import android.content.Intent;
 import android.accounts.AccountManager;
 
 
@@ -31,12 +34,36 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onRegister(View view){
-        if(!passwordEntry.equals(rePasswordEntry))
-        {
-            Toast.makeText(getApplicationContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
+        new RegisterTask(this).execute();
+    }
+
+    private static class RegisterTask extends AsyncTask<Void, Void, Intent>{
+        RegisterTask(RegisterActivity activity){
+            activityReference = new WeakReference<>(activity);
+        }
+        @Override
+        protected Intent doInBackground(Void... params){
+            final Bundle bundle = new Bundle();
+
+            final Intent intent = new Intent();
+            intent.putExtras(bundle);
+
+            return intent;
         }
 
-        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+        @Override
+        protected void onPostExecute(Intent intent){
+            RegisterActivity activity = activityReference.get();
+
+            if(intent.hasExtra(PASSWORD_MATCHING_ERROR)){
+                Toast.makeText(activity.getBaseContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            } else{
+                activity.startActivity(new Intent(activity, MainActivity.class));
+                activity.finish();
+            }
+        }
+
+        private WeakReference<RegisterActivity> activityReference;
     }
 
     private AccountManager accountManager;
@@ -44,4 +71,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText userEntry;
     private EditText passwordEntry;
     private EditText rePasswordEntry;
+
+    private static final String PASSWORD_MATCHING_ERROR = "password_matching_error";
 }
