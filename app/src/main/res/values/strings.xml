@@ -16,4 +16,5 @@
     <string name="edit_name">Edit Name</string>
     <string name="about">About:</string>
     <string name="edit_about">Edit About</string>
+    <string name="log_out">Log Out</string>
 </resources>

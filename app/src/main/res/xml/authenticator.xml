@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.jibberjabber.user"
-    android:icon="@drawable/default_profile_icon"
-    android:smallIcon="@drawable/default_profile_icon"
+    android:icon="@drawable/jibber_jabber_icon"
+    android:smallIcon="@drawable/jibber_jabber_icon"
     android:label="User"
     />

@@ -16,10 +16,11 @@ import android.view.View;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.CheckBox;
+import android.widget.Toast;
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountAuthenticatorActivity;
 import android.content.SharedPreferences;
-
 
 public class LoginActivity extends AccountAuthenticatorActivity {
     @Override
@@ -95,9 +96,27 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         @Override
         protected void onPostExecute(Intent intent) {
             LoginActivity activity = activityReference.get();
+            AccountManager accountManager = activity.accountManager;
 
-            activity.startActivity(new Intent(activity.getBaseContext(), MainActivity.class));
-            activity.finish();
+            //final Account account = new Account(userName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+
+            if(intent.hasExtra(LOGIN_ERROR)){
+                Toast.makeText(activity.getBaseContext(), "Wrong username or password!", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                /*
+                if(activity.getIntent().getBooleanExtra(AccountAuthenticator.IS_ADDING_NEW_ACCOUNT, false)){
+                    String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
+
+                    accountManager.addAccountExplicitly(account, password, null);
+                }
+                else{
+                    accountManager.setPassword(account, password);
+                }*/
+
+                activity.startActivity(new Intent(activity.getBaseContext(), MainActivity.class));
+                activity.finish();
+            }
         }
 
         private WeakReference<LoginActivity> activityReference;
@@ -111,5 +130,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     private EditText userEntry;
     private EditText passwordEntry;
     private CheckBox rememberMeCheckBox;
+
+    private static final String LOGIN_ERROR = "login_error";
 }
 

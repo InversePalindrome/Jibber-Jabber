@@ -9,8 +9,10 @@ package com.inversepalindrome.jibberjabber;
 
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ImageButton;
+import android.widget.Button;
 
 
 public class ProfileFragment extends Fragment implements OnClickListener{
@@ -28,24 +31,28 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         nameText = view.findViewById(R.id.profile_profile_entry);
         aboutText = view.findViewById(R.id.profile_about_entry);
-        editNameButton = view.findViewById(R.id.edit_name_button);
-        editAboutButton = view.findViewById(R.id.edit_about_button);
+        editNameButton = view.findViewById(R.id.profile_edit_name_button);
+        editAboutButton = view.findViewById(R.id.profile_edit_about_button);
+        logOutButton = view.findViewById(R.id.profile_log_out_button);
 
         editNameButton.setOnClickListener(this);
         editAboutButton.setOnClickListener(this);
+        logOutButton.setOnClickListener(this);
 
         return view;
     }
 
     @Override
     public void onClick(View view){
-        switch(view.getId())
-        {
-            case R.id.edit_name_button:
+        switch(view.getId()){
+            case R.id.profile_edit_name_button:
                 onEditName(view);
                 break;
-            case R.id.edit_about_button:
+            case R.id.profile_edit_about_button:
                 onEditAbout(view);
+                break;
+            case R.id.profile_log_out_button:
+                onLogOut(view);
                 break;
         }
     }
@@ -102,8 +109,16 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         aboutDialog.show();
     }
 
+    private void onLogOut(View view){
+        FragmentActivity activity = getActivity();
+
+        activity.startActivity(new Intent(activity.getBaseContext(), LoginActivity.class));
+        activity.finish();
+    }
+
     private TextView nameText;
     private TextView aboutText;
     private ImageButton editNameButton;
     private ImageButton editAboutButton;
+    private Button logOutButton;
 }

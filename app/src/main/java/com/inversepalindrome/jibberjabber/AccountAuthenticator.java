@@ -30,6 +30,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
          final Intent intent = new Intent(context, LoginActivity.class);
          intent.putExtra(ACCOUNT_TYPE, accountType);
          intent.putExtra(TOKEN_TYPE, authTokenType);
+         intent.putExtra(IS_ADDING_NEW_ACCOUNT, true);
          intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 
         final Bundle bundle = new Bundle();
@@ -104,15 +105,8 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         return null;
     }
 
-    private String registerAccount(String userName, String password){
-        return null;
-    }
-
-    private String authenticate(String userName, String password){
-        return null;
-    }
-
     private final Context context;
     public static final String ACCOUNT_TYPE = "com.jibberjabber.user";
     public static final String TOKEN_TYPE = "full_access";
+    public static final String IS_ADDING_NEW_ACCOUNT = "adding_account";
 }

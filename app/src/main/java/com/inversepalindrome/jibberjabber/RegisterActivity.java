@@ -34,16 +34,29 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onRegister(View view){
-        new RegisterTask(this).execute();
+        String userName = userEntry.getText().toString();
+        String password = passwordEntry.getText().toString();
+        String rePassword = rePasswordEntry.getText().toString();
+
+        new RegisterTask(this, userName, password, rePassword).execute();
     }
 
     private static class RegisterTask extends AsyncTask<Void, Void, Intent>{
-        RegisterTask(RegisterActivity activity){
+        RegisterTask(RegisterActivity activity, String userName, String password, String rePassword){
             activityReference = new WeakReference<>(activity);
+
+            this.userName = userName;
+            this.password = password;
+            this.rePassword = rePassword;
         }
+
         @Override
         protected Intent doInBackground(Void... params){
             final Bundle bundle = new Bundle();
+
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, userName);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, AccountAuthenticator.ACCOUNT_TYPE);
+            bundle.putString(AccountManager.KEY_PASSWORD, password);
 
             final Intent intent = new Intent();
             intent.putExtras(bundle);
@@ -58,12 +71,15 @@ public class RegisterActivity extends AppCompatActivity {
             if(intent.hasExtra(PASSWORD_MATCHING_ERROR)){
                 Toast.makeText(activity.getBaseContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
             } else{
-                activity.startActivity(new Intent(activity, MainActivity.class));
                 activity.finish();
             }
         }
 
         private WeakReference<RegisterActivity> activityReference;
+
+        private String userName;
+        private String password;
+        private String rePassword;
     }
 
     private AccountManager accountManager;
