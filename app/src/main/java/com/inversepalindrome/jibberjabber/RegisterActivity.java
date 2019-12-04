@@ -7,17 +7,19 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import java.lang.ref.WeakReference;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.os.AsyncTask;
-import android.widget.Toast;
+import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.view.View;
-import android.content.Intent;
-import android.accounts.AccountManager;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -26,67 +28,56 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        accountManager = AccountManager.get(getApplicationContext());
+        auth = FirebaseAuth.getInstance();
 
-        userEntry = findViewById(R.id.register_username_entry);
+        emailEntry = findViewById(R.id.register_email_entry);
         passwordEntry = findViewById(R.id.register_password_entry);
         rePasswordEntry = findViewById(R.id.register_repassword_entry);
     }
 
     public void onRegister(View view){
-        String userName = userEntry.getText().toString();
-        String password = passwordEntry.getText().toString();
-        String rePassword = rePasswordEntry.getText().toString();
+        final String email = emailEntry.getText().toString();
+        final String password = passwordEntry.getText().toString();
+        final String rePassword = rePasswordEntry.getText().toString();
 
-        new RegisterTask(this, userName, password, rePassword).execute();
+        if(TextUtils.isEmpty(email)){
+            Toast.makeText(getApplicationContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
+            Toast.makeText(getApplicationContext(), "Please enter password!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(!TextUtils.equals(password, rePassword)){
+            Toast.makeText(getApplicationContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(password.length() < MIN_PASSWORD_LENGTH){
+            Toast.makeText(getApplicationContext(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        auth.createUserWithEmailAndPassword(email , password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
+
+                            finish();
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "Registration failed! Please try again later", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
-    private static class RegisterTask extends AsyncTask<Void, Void, Intent>{
-        RegisterTask(RegisterActivity activity, String userName, String password, String rePassword){
-            activityReference = new WeakReference<>(activity);
+    private FirebaseAuth auth;
 
-            this.userName = userName;
-            this.password = password;
-            this.rePassword = rePassword;
-        }
-
-        @Override
-        protected Intent doInBackground(Void... params){
-            final Bundle bundle = new Bundle();
-
-            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, userName);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, AccountAuthenticator.ACCOUNT_TYPE);
-            bundle.putString(AccountManager.KEY_PASSWORD, password);
-
-            final Intent intent = new Intent();
-            intent.putExtras(bundle);
-
-            return intent;
-        }
-
-        @Override
-        protected void onPostExecute(Intent intent){
-            RegisterActivity activity = activityReference.get();
-
-            if(intent.hasExtra(PASSWORD_MATCHING_ERROR)){
-                Toast.makeText(activity.getBaseContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
-            } else{
-                activity.finish();
-            }
-        }
-
-        private WeakReference<RegisterActivity> activityReference;
-
-        private String userName;
-        private String password;
-        private String rePassword;
-    }
-
-    private AccountManager accountManager;
-
-    private EditText userEntry;
+    private EditText emailEntry;
     private EditText passwordEntry;
     private EditText rePasswordEntry;
 
-    private static final String PASSWORD_MATCHING_ERROR = "password_matching_error";
+    private static final int MIN_PASSWORD_LENGTH = 8;
 }

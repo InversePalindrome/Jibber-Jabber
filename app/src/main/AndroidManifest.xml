@@ -12,17 +12,7 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".AuthenticatorService"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                       android:resource="@xml/authenticator"/>
-        </service>
-
+        <activity android:name=".ResetPasswordActivity"></activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
         <activity

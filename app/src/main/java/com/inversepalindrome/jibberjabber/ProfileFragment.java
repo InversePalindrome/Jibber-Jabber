@@ -23,12 +23,17 @@ import android.widget.TextView;
 import android.widget.ImageButton;
 import android.widget.Button;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 
 public class ProfileFragment extends Fragment implements OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        auth = FirebaseAuth.getInstance();
+
         nameText = view.findViewById(R.id.profile_profile_entry);
         aboutText = view.findViewById(R.id.profile_about_entry);
         editNameButton = view.findViewById(R.id.profile_edit_name_button);
@@ -110,11 +115,14 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     private void onLogOut(View view){
-        FragmentActivity activity = getActivity();
+        auth.signOut();
 
+        FragmentActivity activity = getActivity();
         activity.startActivity(new Intent(activity.getBaseContext(), LoginActivity.class));
         activity.finish();
     }
+
+    private FirebaseAuth auth;
 
     private TextView nameText;
     private TextView aboutText;

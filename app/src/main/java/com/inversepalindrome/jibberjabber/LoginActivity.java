@@ -7,29 +7,39 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import java.lang.ref.WeakReference;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.content.Intent;
 import android.widget.EditText;
 import android.widget.CheckBox;
 import android.widget.Toast;
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountAuthenticatorActivity;
-import android.content.SharedPreferences;
 
-public class LoginActivity extends AccountAuthenticatorActivity {
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+
+public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        accountManager = AccountManager.get(getApplicationContext());
-        userEntry = findViewById(R.id.login_username_entry);
+        auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() != null) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+
+        emailEntry = findViewById(R.id.login_email_entry);
         passwordEntry = findViewById(R.id.login_password_entry);
         rememberMeCheckBox = findViewById(R.id.login_remember_me_checkbox);
     }
@@ -43,7 +53,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         editor.putBoolean("remember_me", rememberMeCheckBox.isChecked());
 
         if (rememberMeCheckBox.isChecked()) {
-            editor.putString("username", userEntry.getText().toString());
+            editor.putString("email", emailEntry.getText().toString());
             editor.putString("password", passwordEntry.getText().toString());
         }
 
@@ -56,81 +66,52 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
         SharedPreferences preferences = getSharedPreferences("user", Context.MODE_PRIVATE);
         if (preferences.getBoolean("remember_me", false)) {
-            userEntry.setText(preferences.getString("username", ""));
+            rememberMeCheckBox.setChecked(true);
+            emailEntry.setText(preferences.getString("email", ""));
             passwordEntry.setText(preferences.getString("password", ""));
         }
     }
 
     public void onLogin(View view) {
-        final String userName = userEntry.getText().toString();
+        final String email = emailEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
 
-        new LoginTask(this, userName, password).execute();
+        if(TextUtils.isEmpty(email)){
+            Toast.makeText(getApplicationContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(password)) {
+            Toast.makeText(getApplicationContext(), "Please enter password!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            startActivity(new Intent(getBaseContext(), MainActivity.class));
+                            finish();
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "Login failed! Please check your input.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     public void onRegister(View view) {
         startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
-    private static class LoginTask extends AsyncTask<Void, Void, Intent> {
-        LoginTask(LoginActivity loginActivity, String userName, String password) {
-            activityReference = new WeakReference<>(loginActivity);
-
-            this.userName = userName;
-            this.password = password;
-        }
-
-        @Override
-        protected Intent doInBackground(Void... params) {
-            final Bundle bundle = new Bundle();
-
-            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, userName);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, AccountAuthenticator.ACCOUNT_TYPE);
-
-            final Intent intent = new Intent();
-            intent.putExtras(bundle);
-
-            return intent;
-        }
-
-        @Override
-        protected void onPostExecute(Intent intent) {
-            LoginActivity activity = activityReference.get();
-            AccountManager accountManager = activity.accountManager;
-
-            //final Account account = new Account(userName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
-
-            if(intent.hasExtra(LOGIN_ERROR)){
-                Toast.makeText(activity.getBaseContext(), "Wrong username or password!", Toast.LENGTH_SHORT).show();
-            }
-            else{
-                /*
-                if(activity.getIntent().getBooleanExtra(AccountAuthenticator.IS_ADDING_NEW_ACCOUNT, false)){
-                    String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
-
-                    accountManager.addAccountExplicitly(account, password, null);
-                }
-                else{
-                    accountManager.setPassword(account, password);
-                }*/
-
-                activity.startActivity(new Intent(activity.getBaseContext(), MainActivity.class));
-                activity.finish();
-            }
-        }
-
-        private WeakReference<LoginActivity> activityReference;
-
-        private String userName;
-        private String password;
+    public void onForgotPassword(View view){
+        startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
     }
 
-    private AccountManager accountManager;
+    private FirebaseAuth auth;
 
-    private EditText userEntry;
+    private EditText emailEntry;
     private EditText passwordEntry;
     private CheckBox rememberMeCheckBox;
-
-    private static final String LOGIN_ERROR = "login_error";
 }
 

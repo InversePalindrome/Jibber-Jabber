@@ -10,8 +10,8 @@
         android:id="@+id/login_register_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="49dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="7dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="@font/baloo"
@@ -19,10 +19,9 @@
         android:text="@string/register_here"
         android:textColor="#000000"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/login_new_account_label"
-        app:layout_constraintTop_toBottomOf="@+id/login_remember_me_checkbox" />
+        app:layout_constraintTop_toBottomOf="@+id/login_forgot_password_button" />
 
     <Button
         android:id="@+id/login_button"
@@ -42,17 +41,17 @@
         app:layout_constraintTop_toBottomOf="@+id/login_password_entry"></Button>
 
     <EditText
-        android:id="@+id/login_username_entry"
+        android:id="@+id/login_email_entry"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginBottom="15dp"
-        android:autofillHints="@string/username"
+        android:layout_marginBottom="21dp"
+        android:autofillHints="@string/email"
         android:ellipsize="end"
         android:ems="10"
         android:fontFamily="sans-serif"
-        android:hint="@string/username"
+        android:hint="@string/email"
         android:inputType="textPersonName"
         android:singleLine="true"
         android:textColor="#000000"
@@ -69,7 +68,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginBottom="18dp"
+        android:layout_marginBottom="32dp"
         android:autofillHints="@string/password"
         android:ellipsize="start"
         android:ems="10"
@@ -82,34 +81,38 @@
         app:layout_constraintBottom_toTopOf="@+id/login_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_username_entry" />
+        app:layout_constraintTop_toBottomOf="@+id/login_email_entry" />
 
     <TextView
         android:id="@+id/login_new_account_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="18dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="36dp"
         android:fontFamily="@font/baloo"
         android:text="@string/new_account"
         android:textColor="#000000"
         android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/login_register_label"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/login_register_label"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_remember_me_checkbox" />
 
     <CheckBox
         android:id="@+id/login_remember_me_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="13dp"
-        android:layout_marginBottom="23dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="15dp"
+        android:buttonTint="@color/colorPrimary"
         android:fontFamily="@font/baloo"
         android:text="@string/remember_me"
         android:textSize="16sp"
-        android:buttonTint="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/login_register_label"
-        app:layout_constraintEnd_toEndOf="@+id/login_new_account_label"
+        app:layout_constraintBottom_toTopOf="@+id/login_new_account_label"
+        app:layout_constraintEnd_toStartOf="@+id/login_forgot_password_button"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
     <ImageView
@@ -117,12 +120,27 @@
         android:layout_width="256dp"
         android:layout_height="256dp"
         android:layout_marginTop="41dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="29dp"
+        android:contentDescription="@string/app_name"
         android:src="@drawable/jibber_jabber_icon"
-        app:layout_constraintBottom_toTopOf="@+id/login_username_entry"
+        app:layout_constraintBottom_toTopOf="@+id/login_email_entry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/login_forgot_password_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:fontFamily="@font/baloo"
+        android:onClick="onForgotPassword"
+        android:text="@string/forgot_password"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/login_remember_me_checkbox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/login_remember_me_checkbox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

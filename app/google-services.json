@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "51023255636",
+    "firebase_url": "https://jibber-jabber-78a06.firebaseio.com",
+    "project_id": "jibber-jabber-78a06",
+    "storage_bucket": "jibber-jabber-78a06.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:51023255636:android:cd09ff87a535b09ab7b5c1",
+        "android_client_info": {
+          "package_name": "com.inversepalindrome.jibberjabber"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "51023255636-fl1jqjl2123vipsd9os21fgo9qdq7f6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZOdfUp7MWgGvecFTeMiEv4PeIjOl-Emo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "51023255636-fl1jqjl2123vipsd9os21fgo9qdq7f6s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
