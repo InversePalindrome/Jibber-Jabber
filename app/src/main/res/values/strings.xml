@@ -17,9 +17,13 @@
     <string name="about">About:</string>
     <string name="edit_about">Edit About</string>
     <string name="log_out">Log Out</string>
+    <string name="change_email">Change Email</string>
+    <string name="change_password">Change Password</string>
     <string name="reset_password">Reset Password</string>
-    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_password"><u>Forgot password?</u></string>
     <string name="reset_password_info">Give us your email address so we send you
         instructions to reset your password.</string>
     <string name="welcome">Welcome to Jibber Jabber!</string>
+    <string name="new_email">New Email</string>
+    <string name="new_password">New Password</string>
 </resources>

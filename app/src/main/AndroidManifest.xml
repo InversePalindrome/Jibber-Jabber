@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ResetPasswordActivity"></activity>
+        <activity android:name=".ResetPasswordActivity"/>
         <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
         <activity

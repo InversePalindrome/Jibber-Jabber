@@ -6,9 +6,11 @@
     android:paddingRight="50dp">
 
     <EditText
-        android:id="@+id/edit_name_entry"
+        android:id="@+id/change_email_entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:hint="@string/new_email"
+        android:inputType="text"
+        android:textSize="20sp" />
 
 </LinearLayout>

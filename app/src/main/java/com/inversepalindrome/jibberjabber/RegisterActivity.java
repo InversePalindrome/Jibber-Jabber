@@ -52,7 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(password.length() < MIN_PASSWORD_LENGTH){
+        if(password.length() < Constants.MIN_PASSWORD_LENGTH){
             Toast.makeText(getApplicationContext(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -78,6 +78,4 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailEntry;
     private EditText passwordEntry;
     private EditText rePasswordEntry;
-
-    private static final int MIN_PASSWORD_LENGTH = 8;
 }

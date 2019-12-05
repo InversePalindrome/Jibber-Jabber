@@ -7,6 +7,7 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
@@ -14,16 +15,19 @@ import androidx.fragment.app.FragmentActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.ImageButton;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 public class ProfileFragment extends Fragment implements OnClickListener{
@@ -33,15 +37,14 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
 
-        nameText = view.findViewById(R.id.profile_profile_entry);
-        aboutText = view.findViewById(R.id.profile_about_entry);
-        editNameButton = view.findViewById(R.id.profile_edit_name_button);
-        editAboutButton = view.findViewById(R.id.profile_edit_about_button);
+        changeEmailButton = view.findViewById(R.id.profile_change_email_button);
+        changePasswordButton = view.findViewById(R.id.profile_change_password_button);
         logOutButton = view.findViewById(R.id.profile_log_out_button);
 
-        editNameButton.setOnClickListener(this);
-        editAboutButton.setOnClickListener(this);
+        changeEmailButton.setOnClickListener(this);
+        changePasswordButton.setOnClickListener(this);
         logOutButton.setOnClickListener(this);
 
         return view;
@@ -50,11 +53,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     @Override
     public void onClick(View view){
         switch(view.getId()){
-            case R.id.profile_edit_name_button:
-                onEditName(view);
+            case R.id.profile_change_email_button:
+                onChangeEmail(view);
                 break;
-            case R.id.profile_edit_about_button:
-                onEditAbout(view);
+            case R.id.profile_change_password_button:
+                onChangePassword(view);
                 break;
             case R.id.profile_log_out_button:
                 onLogOut(view);
@@ -62,56 +65,92 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         }
     }
 
-    private void onEditName(View view){
-        AlertDialog.Builder nameDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
-        nameDialogBuilder.setTitle("Edit Name");
+    private void onChangeEmail(View view){
+        AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+        emailDialogBuilder.setTitle("Change Email");
 
-        final View nameLayout = getLayoutInflater().inflate(R.layout.edit_name_layout, null);
-        nameDialogBuilder.setView(nameLayout);
+        final View emailLayout = getLayoutInflater().inflate(R.layout.change_email_layout, null);
+        emailDialogBuilder.setView(emailLayout);
 
-        final EditText editNameText = nameLayout.findViewById(R.id.edit_name_entry);
-
-        nameDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        emailDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                nameText.setText(editNameText.getText());
+                final EditText emailEntry = emailLayout.findViewById(R.id.change_email_entry);
+                final String newEmail = emailEntry.getText().toString();
+
+                if(TextUtils.isEmpty(newEmail)){
+                    Toast.makeText(getActivity(), "Please enter email!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                user.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(getActivity(), "Email address updated successfully!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(getActivity(), "Email address failed to be updated!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
-        nameDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        emailDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
 
-        AlertDialog nameDialog = nameDialogBuilder.create();
-        nameDialog.show();
+        AlertDialog emailDialog = emailDialogBuilder.create();
+        emailDialog.show();
     }
 
-    private void onEditAbout(View view){
-        AlertDialog.Builder aboutDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
-        aboutDialogBuilder.setTitle("Edit About");
+    private void onChangePassword(View view){
+        AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+        passwordDialogBuilder.setTitle("Change Password");
 
-        final View aboutLayout = getLayoutInflater().inflate(R.layout.edit_about_layout, null);
-        aboutDialogBuilder.setView(aboutLayout);
+        final View passwordLayout = getLayoutInflater().inflate(R.layout.change_password_layout, null);
+        passwordDialogBuilder.setView(passwordLayout);
 
-        final EditText editAboutEntry = aboutLayout.findViewById(R.id.edit_about_entry);
-
-        aboutDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        passwordDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                aboutText.setText(editAboutEntry.getText());
+                final EditText passwordEntry = passwordLayout.findViewById(R.id.change_password_entry);
+                final String newPassword = passwordEntry.getText().toString();
+
+                if(TextUtils.isEmpty(newPassword)){
+                    Toast.makeText(getActivity(), "Please enter password!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(newPassword.length() < Constants.MIN_PASSWORD_LENGTH){
+                    Toast.makeText(getActivity(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(getActivity(), "Password successfully updated!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(getActivity(), "Password failed to be updated!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
-        aboutDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        passwordDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
 
-        AlertDialog aboutDialog = aboutDialogBuilder.create();
-        aboutDialog.show();
+        AlertDialog passwordDialog = passwordDialogBuilder.create();
+        passwordDialog.show();
     }
 
     private void onLogOut(View view){
@@ -123,10 +162,9 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     private FirebaseAuth auth;
+    private FirebaseUser user;
 
-    private TextView nameText;
-    private TextView aboutText;
-    private ImageButton editNameButton;
-    private ImageButton editAboutButton;
     private Button logOutButton;
+    private Button changeEmailButton;
+    private Button changePasswordButton;
 }

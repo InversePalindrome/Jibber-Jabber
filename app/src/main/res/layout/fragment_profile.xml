@@ -8,120 +8,48 @@
     android:contentDescription="@string/profile_picture"
     tools:context=".ProfileFragment">
 
-    <ImageButton
-        android:id="@+id/profile_edit_about_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginEnd="246dp"
-        android:contentDescription="@string/edit_about"
-        android:scaleType="fitCenter"
-        android:src="@drawable/pencil_edit_button"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_about_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_about_label"
-        app:layout_constraintTop_toTopOf="@+id/profile_about_label" />
-
-    <TextView
-        android:id="@+id/profile_about_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="57dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="@font/baloo"
-        android:text="@string/about"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/profile_about_entry"
-        app:layout_constraintEnd_toStartOf="@+id/profile_edit_about_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_profile_entry" />
-
-    <TextView
-        android:id="@+id/profile_profile_entry"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginBottom="26dp"
-        android:fontFamily="sans-serif"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/profile_about_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_name_label" />
-
-    <ImageView
-        android:id="@+id/profile_profile_image"
-        android:layout_width="180dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="26dp"
-        android:contentDescription="@string/profile_picture"
-        android:src="@drawable/default_profile_icon"
-        app:layout_constraintBottom_toTopOf="@+id/profile_name_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/profile_name_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="57dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="@font/baloo"
-        android:text="@string/name"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/profile_profile_entry"
-        app:layout_constraintEnd_toStartOf="@+id/profile_edit_name_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_profile_image" />
-
-    <TextView
-        android:id="@+id/profile_about_entry"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-
-        android:layout_marginStart="44dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginBottom="154dp"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/profile_log_out_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_about_label" />
-
-    <ImageButton
-        android:id="@+id/profile_edit_name_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="246dp"
-        android:layout_marginBottom="1dp"
-        android:contentDescription="@string/edit_name"
-        android:scaleType="fitCenter"
-        android:src="@drawable/pencil_edit_button"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_name_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_name_label"
-        app:layout_constraintTop_toTopOf="@+id/profile_name_label" />
-
     <Button
         android:id="@+id/profile_log_out_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="55dp"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="49dp"
         android:fontFamily="@font/baloo"
         android:text="@string/log_out"
         android:textColor="#000000"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_about_entry" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_change_password_button" />
+
+    <Button
+        android:id="@+id/profile_change_email_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="49dp"
+        android:layout_marginEnd="49dp"
+        android:layout_marginBottom="301dp"
+        android:fontFamily="@font/baloo"
+        android:text="@string/change_email"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/profile_change_password_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="29dp"
+        android:layout_marginEnd="49dp"
+        android:fontFamily="@font/baloo"
+        android:text="@string/change_password"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_change_email_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>
