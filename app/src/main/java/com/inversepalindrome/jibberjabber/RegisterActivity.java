@@ -20,6 +20,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -30,16 +32,22 @@ public class RegisterActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
+        userNameEntry = findViewById(R.id.register_username_entry);
         emailEntry = findViewById(R.id.register_email_entry);
         passwordEntry = findViewById(R.id.register_password_entry);
         rePasswordEntry = findViewById(R.id.register_repassword_entry);
     }
 
     public void onRegister(View view){
+        final String userName = userNameEntry.getText().toString();
         final String email = emailEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
         final String rePassword = rePasswordEntry.getText().toString();
 
+        if(TextUtils.isEmpty(userName)){
+            Toast.makeText(getApplicationContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(TextUtils.isEmpty(email)){
             Toast.makeText(getApplicationContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
             return;
@@ -64,6 +72,12 @@ public class RegisterActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
 
+                            FirebaseUser user = auth.getCurrentUser();
+                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(userName)
+                                    .build();
+                            user.updateProfile(profileUpdate);
+
                             finish();
                         }
                         else{
@@ -75,6 +89,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
 
+    private EditText userNameEntry;
     private EditText emailEntry;
     private EditText passwordEntry;
     private EditText rePasswordEntry;

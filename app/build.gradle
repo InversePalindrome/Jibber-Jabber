@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -16,6 +17,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -36,5 +41,3 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
     implementation "com.google.firebase:firebase-auth:19.2.0"
 }
-
-apply plugin: 'com.google.gms.google-services'

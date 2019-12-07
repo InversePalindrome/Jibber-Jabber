@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,6 +40,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
+        usernameText = view.findViewById(R.id.profile_username_text);
         changeEmailButton = view.findViewById(R.id.profile_change_email_button);
         changePasswordButton = view.findViewById(R.id.profile_change_password_button);
         logOutButton = view.findViewById(R.id.profile_log_out_button);
@@ -46,6 +48,8 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         changeEmailButton.setOnClickListener(this);
         changePasswordButton.setOnClickListener(this);
         logOutButton.setOnClickListener(this);
+
+        usernameText.setText(user.getDisplayName());
 
         return view;
     }
@@ -164,6 +168,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     private FirebaseAuth auth;
     private FirebaseUser user;
 
+    private TextView usernameText;
     private Button logOutButton;
     private Button changeEmailButton;
     private Button changePasswordButton;

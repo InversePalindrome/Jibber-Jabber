@@ -13,12 +13,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="83dp"
         android:fontFamily="@font/baloo"
         android:text="@string/log_out"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_change_password_button" />
@@ -29,27 +30,59 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
         android:layout_marginEnd="49dp"
-        android:layout_marginBottom="301dp"
+        android:layout_marginBottom="34dp"
         android:fontFamily="@font/baloo"
         android:text="@string/change_email"
         android:textColor="#000000"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/profile_change_password_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_username_text" />
 
     <Button
         android:id="@+id/profile_change_password_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="29dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="34dp"
         android:fontFamily="@font/baloo"
         android:text="@string/change_password"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/profile_log_out_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_change_email_button" />
+
+    <TextView
+        android:id="@+id/profile_username_text"
+        android:layout_width="312dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="49dp"
+        android:layout_marginEnd="49dp"
+        android:layout_marginBottom="41dp"
+        android:fontFamily="@font/baloo"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/profile_change_email_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_profile_picture" />
+
+    <ImageView
+        android:id="@+id/profile_profile_picture"
+        android:layout_width="212dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="29dp"
+        android:contentDescription="@string/profile"
+        android:src="@drawable/default_profile_icon"
+        app:layout_constraintBottom_toTopOf="@+id/profile_username_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
