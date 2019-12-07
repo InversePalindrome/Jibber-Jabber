@@ -14,6 +14,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,13 +24,18 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class ProfileFragment extends Fragment implements OnClickListener{
@@ -40,15 +47,22 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
+        profileImage = view.findViewById(R.id.profile_profile_picture);
         usernameText = view.findViewById(R.id.profile_username_text);
         changeEmailButton = view.findViewById(R.id.profile_change_email_button);
         changePasswordButton = view.findViewById(R.id.profile_change_password_button);
         logOutButton = view.findViewById(R.id.profile_log_out_button);
 
+        galleryButton = view.findViewById(R.id.profile_gallery_button);
+        cameraButton = view.findViewById(R.id.profile_camera_button);
+
         changeEmailButton.setOnClickListener(this);
         changePasswordButton.setOnClickListener(this);
         logOutButton.setOnClickListener(this);
+        galleryButton.setOnClickListener(this);
+        cameraButton.setOnClickListener(this);
 
+        profileImage.setImageURI(user.getPhotoUrl());
         usernameText.setText(user.getDisplayName());
 
         return view;
@@ -58,18 +72,47 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     public void onClick(View view){
         switch(view.getId()){
             case R.id.profile_change_email_button:
-                onChangeEmail(view);
+                onChangeEmail();
                 break;
             case R.id.profile_change_password_button:
-                onChangePassword(view);
+                onChangePassword();
                 break;
             case R.id.profile_log_out_button:
-                onLogOut(view);
+                onLogOut();
+                break;
+            case R.id.profile_gallery_button:
+                onOpenGallery();
+                break;
+            case R.id.profile_camera_button:
+                onOpenCamera();
                 break;
         }
     }
 
-    private void onChangeEmail(View view){
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK){
+            if(requestCode == Constants.PICK_IMAGE){
+                final Uri imageURI = data.getData();
+
+                profileImage.setImageURI(imageURI);
+
+                FirebaseUser user = auth.getCurrentUser();
+                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                        .setPhotoUri(imageURI)
+                        .build();
+                user.updateProfile(profileUpdate);
+            }
+            else if(requestCode == Constants.CAMERA_REQUEST){
+
+            }
+        }
+
+    }
+
+    private void onChangeEmail(){
         AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
@@ -111,7 +154,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         emailDialog.show();
     }
 
-    private void onChangePassword(View view){
+    private void onChangePassword(){
         AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
@@ -157,7 +200,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         passwordDialog.show();
     }
 
-    private void onLogOut(View view){
+    private void onLogOut(){
         auth.signOut();
 
         FragmentActivity activity = getActivity();
@@ -165,11 +208,27 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         activity.finish();
     }
 
+    private void onOpenGallery(){
+        Intent galleryIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select Profile Picture"), Constants.PICK_IMAGE);
+    }
+
+    private void onOpenCamera(){
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, Constants.CAMERA_REQUEST);
+    }
+
     private FirebaseAuth auth;
     private FirebaseUser user;
+
+    private ImageView profileImage;
 
     private TextView usernameText;
     private Button logOutButton;
     private Button changeEmailButton;
     private Button changePasswordButton;
+
+    private FloatingActionButton galleryButton;
+    private FloatingActionButton cameraButton;
 }
