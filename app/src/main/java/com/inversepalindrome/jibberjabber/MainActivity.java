@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
         navigationView.setSelectedItemId(R.id.forum_fragment);
     }
 

@@ -7,7 +7,10 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.io.File;
+
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
@@ -17,6 +20,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +28,6 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +37,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -47,7 +52,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
-        profileImage = view.findViewById(R.id.profile_profile_picture);
+        profileImage = view.findViewById(R.id.profile_profile_image);
         usernameText = view.findViewById(R.id.profile_username_text);
         changeEmailButton = view.findViewById(R.id.profile_change_email_button);
         changePasswordButton = view.findViewById(R.id.profile_change_password_button);
@@ -106,7 +111,17 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 user.updateProfile(profileUpdate);
             }
             else if(requestCode == Constants.CAMERA_REQUEST){
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                profileImage.setImageBitmap(photo);
 
+                File file = new File(Environment.getExternalStorageDirectory(), "ProfilePhoto.jpg");
+                Uri imageURI = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+
+                FirebaseUser user = auth.getCurrentUser();
+                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                        .setPhotoUri(imageURI)
+                        .build();
+                user.updateProfile(profileUpdate);
             }
         }
 
@@ -216,13 +231,19 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
     private void onOpenCamera(){
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File file = new File(Environment.getExternalStorageDirectory(), "ProfilePhoto.jpg");
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+
+        cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+
         startActivityForResult(cameraIntent, Constants.CAMERA_REQUEST);
     }
 
     private FirebaseAuth auth;
     private FirebaseUser user;
 
-    private ImageView profileImage;
+    private CircleImageView profileImage;
 
     private TextView usernameText;
     private Button logOutButton;
