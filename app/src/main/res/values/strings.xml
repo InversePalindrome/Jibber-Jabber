@@ -26,4 +26,8 @@
     <string name="welcome">Welcome to Jibber Jabber!</string>
     <string name="new_email">New Email</string>
     <string name="new_password">New Password</string>
+    <string name="contact_email">Contact Email</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

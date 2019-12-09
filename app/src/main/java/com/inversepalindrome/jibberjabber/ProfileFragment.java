@@ -120,7 +120,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
             @Override
             public void onImagePickerError(@NonNull Throwable error, @NonNull MediaSource source) {
-
+                Toast.makeText(getActivity(), "Error: Profile image couldn't be selected!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -134,7 +134,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
-        final View emailLayout = getLayoutInflater().inflate(R.layout.change_email_layout, null);
+        final View emailLayout = getLayoutInflater().inflate(R.layout.dialog_change_email, null);
         emailDialogBuilder.setView(emailLayout);
 
         emailDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -176,7 +176,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
-        final View passwordLayout = getLayoutInflater().inflate(R.layout.change_password_layout, null);
+        final View passwordLayout = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
         passwordDialogBuilder.setView(passwordLayout);
 
         passwordDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
