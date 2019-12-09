@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/new_email"
+        android:textCursorDrawable="@drawable/black_cursor"
         android:inputType="text"
         android:textSize="20sp" />
 

@@ -7,20 +7,15 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import java.io.File;
-
 import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +35,11 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static android.app.Activity.RESULT_OK;
+import pl.aprilapps.easyphotopicker.ChooserType;
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
+import pl.aprilapps.easyphotopicker.MediaFile;
+import pl.aprilapps.easyphotopicker.MediaSource;
 
 
 public class ProfileFragment extends Fragment implements OnClickListener{
@@ -70,6 +69,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         profileImage.setImageURI(user.getPhotoUrl());
         usernameText.setText(user.getDisplayName());
 
+        profileDialog = new EasyImage.Builder(getContext()).
+                setCopyImagesToPublicGalleryFolder(false).
+                setChooserTitle("Choose Profile Picture").
+                setChooserType(ChooserType.CAMERA_AND_GALLERY).build();
+
         return view;
     }
 
@@ -98,33 +102,32 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
-            if(requestCode == Constants.PICK_IMAGE){
-                final Uri imageURI = data.getData();
+        profileDialog.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
+            @Override
+            public void onMediaFilesPicked(MediaFile[] imageFiles, MediaSource source) {
+                MediaFile image = imageFiles[0];
+                String filePath = image.getFile().toString();
 
-                profileImage.setImageURI(imageURI);
-
-                FirebaseUser user = auth.getCurrentUser();
-                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setPhotoUri(imageURI)
-                        .build();
-                user.updateProfile(profileUpdate);
-            }
-            else if(requestCode == Constants.CAMERA_REQUEST){
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                profileImage.setImageBitmap(photo);
-
-                File file = new File(Environment.getExternalStorageDirectory(), "ProfilePhoto.jpg");
-                Uri imageURI = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+                Uri uri = Uri.parse(filePath);
+                profileImage.setImageURI(uri);
 
                 FirebaseUser user = auth.getCurrentUser();
                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setPhotoUri(imageURI)
+                        .setPhotoUri(uri)
                         .build();
                 user.updateProfile(profileUpdate);
             }
-        }
 
+            @Override
+            public void onImagePickerError(@NonNull Throwable error, @NonNull MediaSource source) {
+
+            }
+
+            @Override
+            public void onCanceled(@NonNull MediaSource source) {
+
+            }
+        });
     }
 
     private void onChangeEmail(){
@@ -224,20 +227,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     private void onOpenGallery(){
-        Intent galleryIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        galleryIntent.setType("image/*");
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select Profile Picture"), Constants.PICK_IMAGE);
+        profileDialog.openGallery(this);
     }
 
     private void onOpenCamera(){
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-
-        File file = new File(Environment.getExternalStorageDirectory(), "ProfilePhoto.jpg");
-        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
-
-        cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
-
-        startActivityForResult(cameraIntent, Constants.CAMERA_REQUEST);
+       profileDialog.openCameraForImage(this);
     }
 
     private FirebaseAuth auth;
@@ -252,4 +246,6 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
     private FloatingActionButton galleryButton;
     private FloatingActionButton cameraButton;
+
+    private EasyImage profileDialog;
 }
