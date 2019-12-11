@@ -118,7 +118,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 profileImage.setImageURI(uri);
 
                 updateAuthProfileURL(uri);
-                updateDatabaseProfileURL(filePath);
+                updateDatabaseProfileURI(filePath);
             }
 
             @Override
@@ -242,9 +242,9 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         user.updateProfile(profileUpdate);
     }
 
-    private void updateDatabaseProfileURL(String filePath){
+    private void updateDatabaseProfileURI(String filePath){
         Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("profileURL", filePath);
+        userUpdates.put("profileURI", filePath);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
         usersReference.child(user.getUid()).updateChildren(userUpdates);

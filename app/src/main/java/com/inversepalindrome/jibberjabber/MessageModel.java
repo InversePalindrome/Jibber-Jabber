@@ -9,6 +9,8 @@ package com.inversepalindrome.jibberjabber;
 
 
 public class MessageModel {
+    public MessageModel(){}
+
     public String senderID;
     public String message;
 }

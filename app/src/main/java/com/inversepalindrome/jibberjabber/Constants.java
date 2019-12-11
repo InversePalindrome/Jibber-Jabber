@@ -11,4 +11,5 @@ public class Constants {
     public static final int MIN_PASSWORD_LENGTH = 8;
     public static final String DATABASE_MESSAGES = "message";
     public static final String DATABASE_USERS = "users";
+    public static final String USER_MODEL_RECEIVER = "user_model_receiver";
 }
