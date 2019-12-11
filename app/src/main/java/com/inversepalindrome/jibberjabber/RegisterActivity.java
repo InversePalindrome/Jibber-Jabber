@@ -35,19 +35,19 @@ public class RegisterActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        userNameEntry = findViewById(R.id.register_username_entry);
+        usernameEntry = findViewById(R.id.register_username_entry);
         emailEntry = findViewById(R.id.register_email_entry);
         passwordEntry = findViewById(R.id.register_password_entry);
         rePasswordEntry = findViewById(R.id.register_repassword_entry);
     }
 
     public void onRegister(View view){
-        final String userName = userNameEntry.getText().toString();
+        final String username = usernameEntry.getText().toString();
         final String email = emailEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
         final String rePassword = rePasswordEntry.getText().toString();
 
-        if(TextUtils.isEmpty(userName)){
+        if(TextUtils.isEmpty(username)){
             Toast.makeText(getApplicationContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -76,17 +76,11 @@ public class RegisterActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
 
                             FirebaseUser user = auth.getCurrentUser();
-                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(userName)
-                                    .build();
-                            user.updateProfile(profileUpdate);
 
-                            DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
-
-                            DatabaseReference userReference = usersReference.push();
-
-                            userReference.setValue("username", userName);
-                            userReference.setValue("email", email);
+                            if(user != null) {
+                                updateAuthAccount(user, username);
+                                updateUsersDatabase(user, username, email);
+                            }
 
                             finish();
                         }
@@ -97,10 +91,24 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
+    private void updateAuthAccount(FirebaseUser user, String username){
+        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                .setDisplayName(username)
+                .build();
+        user.updateProfile(profileUpdate);
+    }
+
+    private void updateUsersDatabase(FirebaseUser user, String username, String email){
+        UserModel userModel = new UserModel(username, email);
+
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        usersReference.child(user.getUid()).setValue(userModel);
+    }
+
     private FirebaseAuth auth;
     private FirebaseDatabase database;
 
-    private EditText userNameEntry;
+    private EditText usernameEntry;
     private EditText emailEntry;
     private EditText passwordEntry;
     private EditText rePasswordEntry;

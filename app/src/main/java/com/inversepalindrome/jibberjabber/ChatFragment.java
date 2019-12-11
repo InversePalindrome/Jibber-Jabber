@@ -30,7 +30,7 @@ public class ChatFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         database = FirebaseDatabase.getInstance();
-        DatabaseReference messagesReference = database.getReference(Constants.DATABASE_MESSAGES);
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
 
         chatView = view.findViewById(R.id.chat_chat_view);
         chatView.setRightBubbleColor(ContextCompat.getColor(getContext(), R.color.lightGrey));

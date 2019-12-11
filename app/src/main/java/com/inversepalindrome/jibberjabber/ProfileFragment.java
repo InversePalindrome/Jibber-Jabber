@@ -7,6 +7,9 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
@@ -107,28 +110,20 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
         profileDialog.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
             @Override
-            public void onMediaFilesPicked(MediaFile[] imageFiles, MediaSource source) {
+            public void onMediaFilesPicked(@NonNull MediaFile[] imageFiles, @NonNull MediaSource source) {
                 MediaFile image = imageFiles[0];
                 String filePath = image.getFile().toString();
 
                 Uri uri = Uri.parse(filePath);
                 profileImage.setImageURI(uri);
 
-                FirebaseUser user = auth.getCurrentUser();
-                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setPhotoUri(uri)
-                        .build();
-                user.updateProfile(profileUpdate);
+                updateAuthProfileURL(uri);
+                updateDatabaseProfileURL(filePath);
             }
 
             @Override
             public void onImagePickerError(@NonNull Throwable error, @NonNull MediaSource source) {
                 Toast.makeText(getActivity(), "Error: Profile image couldn't be selected!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCanceled(@NonNull MediaSource source) {
-
             }
         });
     }
@@ -157,8 +152,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                         if(task.isSuccessful()){
                             Toast.makeText(getActivity(), "Email address updated successfully!", Toast.LENGTH_SHORT).show();
 
-                            DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
-                            //TODO: Change Profile email in database
+                            updateDatabaseEmail(newEmail);
                         }
                         else{
                             Toast.makeText(getActivity(), "Email address failed to be updated!", Toast.LENGTH_SHORT).show();
@@ -238,6 +232,30 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
     private void onOpenCamera(){
        profileDialog.openCameraForImage(this);
+    }
+
+    private void updateAuthProfileURL(Uri uri){
+        FirebaseUser user = auth.getCurrentUser();
+        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                .setPhotoUri(uri)
+                .build();
+        user.updateProfile(profileUpdate);
+    }
+
+    private void updateDatabaseProfileURL(String filePath){
+        Map<String, Object> userUpdates = new HashMap<>();
+        userUpdates.put("profileURL", filePath);
+
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        usersReference.child(user.getUid()).updateChildren(userUpdates);
+    }
+
+    private void updateDatabaseEmail(String newEmail){
+        Map<String, Object> userUpdates = new HashMap<>();
+        userUpdates.put("email", newEmail);
+
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
 
     private FirebaseAuth auth;
