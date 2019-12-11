@@ -22,6 +22,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -31,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
 
         userNameEntry = findViewById(R.id.register_username_entry);
         emailEntry = findViewById(R.id.register_email_entry);
@@ -78,6 +81,13 @@ public class RegisterActivity extends AppCompatActivity {
                                     .build();
                             user.updateProfile(profileUpdate);
 
+                            DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+
+                            DatabaseReference userReference = usersReference.push();
+
+                            userReference.setValue("username", userName);
+                            userReference.setValue("email", email);
+
                             finish();
                         }
                         else{
@@ -88,6 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private FirebaseAuth auth;
+    private FirebaseDatabase database;
 
     private EditText userNameEntry;
     private EditText emailEntry;

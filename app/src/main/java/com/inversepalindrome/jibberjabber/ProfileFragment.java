@@ -32,6 +32,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -50,6 +52,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        database = FirebaseDatabase.getInstance();
 
         profileImage = view.findViewById(R.id.profile_profile_image);
         usernameText = view.findViewById(R.id.profile_username_text);
@@ -153,6 +156,9 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(getActivity(), "Email address updated successfully!", Toast.LENGTH_SHORT).show();
+
+                            DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+                            //TODO: Change Profile email in database
                         }
                         else{
                             Toast.makeText(getActivity(), "Email address failed to be updated!", Toast.LENGTH_SHORT).show();
@@ -236,6 +242,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
 
     private FirebaseAuth auth;
     private FirebaseUser user;
+    private FirebaseDatabase database;
 
     private CircleImageView profileImage;
 

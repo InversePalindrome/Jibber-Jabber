@@ -17,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.bassaer.chatmessageview.model.Message;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import com.github.bassaer.chatmessageview.view.ChatView;
 
 
@@ -26,6 +28,9 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        database = FirebaseDatabase.getInstance();
+        DatabaseReference messagesReference = database.getReference(Constants.DATABASE_MESSAGES);
 
         chatView = view.findViewById(R.id.chat_chat_view);
         chatView.setRightBubbleColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
@@ -58,6 +63,8 @@ public class ChatFragment extends Fragment {
 
         return view;
     }
+
+    private FirebaseDatabase database;
 
     private ChatView chatView;
 }
