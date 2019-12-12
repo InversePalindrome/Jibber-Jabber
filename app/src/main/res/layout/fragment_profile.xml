@@ -16,7 +16,6 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="35dp"
-        android:src="@drawable/default_profile_icon"
         app:layout_constraintBottom_toTopOf="@+id/profile_username_text"
         app:layout_constraintEnd_toStartOf="@+id/profile_gallery_button"
         app:layout_constraintStart_toStartOf="parent"

@@ -28,7 +28,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -70,14 +69,15 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
                 DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
 
-                Query query = usersReference.orderByChild("email").equalTo(email);
-                query.addValueEventListener(new ValueEventListener() {
+                usersReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(dataSnapshot.exists()){
-                            UserModel receiverUserModel = dataSnapshot.getValue(UserModel.class);
+                            for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                                UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                            openChat(receiverUserModel);
+                                openChat(receiverUserModel);
+                            }
                         }
                         else{
                             Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();

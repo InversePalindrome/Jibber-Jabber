@@ -11,18 +11,22 @@ package com.inversepalindrome.jibberjabber;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
 public class UserModel implements Parcelable {
     public UserModel() {}
 
-    public UserModel(String username, String email)
+    public UserModel(String uID, String username, String email, String profileURI)
     {
+        this.uID = uID;
         this.username = username;
         this.email = email;
+        this.profileURI = profileURI;
     }
 
+    public String uID;
     public String username;
     public String email;
-    public String profileURI = "";
+    public String profileURI;
 
     @Override
     public int describeContents() {
@@ -31,12 +35,14 @@ public class UserModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.uID);
         dest.writeString(this.username);
         dest.writeString(this.email);
         dest.writeString(this.profileURI);
     }
 
     protected UserModel(Parcel in) {
+        this.uID = in.readString();
         this.username = in.readString();
         this.email = in.readString();
         this.profileURI = in.readString();

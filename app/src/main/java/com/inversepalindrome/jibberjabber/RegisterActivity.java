@@ -10,6 +10,9 @@ package com.inversepalindrome.jibberjabber;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
@@ -68,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        auth.createUserWithEmailAndPassword(email , password)
+        auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -78,8 +81,14 @@ public class RegisterActivity extends AppCompatActivity {
                             FirebaseUser user = auth.getCurrentUser();
 
                             if(user != null) {
-                                updateAuthAccount(user, username);
-                                updateUsersDatabase(user, username, email);
+                                Resources resources = getResources();
+                                Uri profileURI = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                                        + resources.getResourcePackageName(R.drawable.default_profile_icon) + '/'
+                                        + resources.getResourceTypeName(R.drawable.default_profile_icon) + '/'
+                                        + resources.getResourceEntryName(R.drawable.default_profile_icon));
+
+                                updateAuthAccount(user, username, profileURI);
+                                updateUsersDatabase(user, username, email, profileURI.getPath());
                             }
 
                             finish();
@@ -91,15 +100,16 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateAuthAccount(FirebaseUser user, String username){
+    private void updateAuthAccount(FirebaseUser user, String username, Uri profileURI){
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(username)
+                .setPhotoUri(profileURI)
                 .build();
         user.updateProfile(profileUpdate);
     }
 
-    private void updateUsersDatabase(FirebaseUser user, String username, String email){
-        UserModel userModel = new UserModel(username, email);
+    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI){
+        UserModel userModel = new UserModel(user.getUid(), username, email, profileURI);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
         usersReference.child(user.getUid()).setValue(userModel);

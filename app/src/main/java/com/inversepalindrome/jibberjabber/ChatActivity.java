@@ -24,8 +24,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.File;
-
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -36,10 +34,10 @@ public class ChatActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-        initializeChatView(getIntent().getExtras());
+        initializeChatView(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
     }
 
-    private void initializeChatView(Bundle bundle){
+    private void initializeChatView(UserModel receiverUserModel){
         chatView = findViewById(R.id.chat_chat_view);
         chatView.setBackgroundColor(ContextCompat.getColor(this, R.color.darkerWhite));
         chatView.setRightBubbleColor(ContextCompat.getColor(this, R.color.lightGrey));
@@ -53,7 +51,7 @@ public class ChatActivity extends AppCompatActivity {
         chatView.setMessageMarginBottom(5);
 
         FirebaseUser senderUser = FirebaseAuth.getInstance().getCurrentUser();
-        Uri senderProfileURI = Uri.fromFile(new File(senderUser.getPhotoUrl().getPath()));
+        Uri senderProfileURI = Uri.parse(senderUser.getPhotoUrl().getPath());
 
         Bitmap senderBitmap = null;
         try {
@@ -63,10 +61,9 @@ public class ChatActivity extends AppCompatActivity {
             exception.printStackTrace();
         }
 
-        UserModel receiverUserModel = bundle.getParcelable(Constants.USER_MODEL_RECEIVER);
         setTitle(receiverUserModel.username);
 
-        Uri receiverProfileURI = Uri.fromFile(new File(receiverUserModel.profileURI));
+        Uri receiverProfileURI = Uri.parse(receiverUserModel.profileURI);
 
         Bitmap receiverBitmap = null;
         try {
@@ -93,10 +90,23 @@ public class ChatActivity extends AppCompatActivity {
 
                 chatView.setInputText("");
 
+                final String senderID = senderUser.getUid();
+                final String receiverID = receiverUserModel.uID;
+
+                MessageModel messageModel = new MessageModel(senderID, receiverID, message.getText());
+
                 DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
-                //TODO messagesReference.child("").setValue()
+                messagesReference.child(getMessageID(senderID, receiverID)).setValue(messageModel);
             }
         });
+    }
+
+    private String getMessageID(String uID1, String uID2){
+       if(uID1.compareTo(uID2) < 0){
+           return uID1 + uID2;
+       }
+
+       return uID2 + uID1;
     }
 
     private FirebaseDatabase database;
