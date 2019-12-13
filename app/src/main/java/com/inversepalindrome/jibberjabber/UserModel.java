@@ -23,10 +23,12 @@ public class UserModel implements Parcelable {
             return new UserModel[size];
         }
     };
+
     public String uID;
     public String username;
     public String email;
     public String profileURI;
+
     public UserModel() {
     }
 

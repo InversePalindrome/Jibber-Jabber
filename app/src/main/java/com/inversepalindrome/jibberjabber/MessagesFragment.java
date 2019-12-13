@@ -91,7 +91,6 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                             for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                addMessageItem(receiverUserModel);
                                 openChat(receiverUserModel);
                             }
                         } else {
@@ -115,10 +114,6 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
         AlertDialog startMessageDialog = startMessageDialogBuilder.create();
         startMessageDialog.show();
-    }
-
-    private void addMessageItem(UserModel receiverUserModel){
-
     }
 
     private void openChat(UserModel receiverUserModel) {

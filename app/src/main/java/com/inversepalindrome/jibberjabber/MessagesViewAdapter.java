@@ -7,17 +7,20 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapter.ViewHolder>{
+public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapter.ViewHolder> {
     private int layout;
     private ArrayList<MessageItem> messageList;
 
@@ -37,7 +40,13 @@ public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        TextView usernameText = holder.usernameText;
+        CircleImageView profilePicture = holder.profilePicture;
 
+        MessageItem messageItem = messageList.get(position);
+
+        usernameText.setText(messageItem.getUsername());
+        profilePicture.setImageURI(Uri.parse(messageItem.getProfileURI()));
     }
 
     @Override
@@ -46,8 +55,14 @@ public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapte
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public TextView usernameText;
+        public CircleImageView profilePicture;
+
         public ViewHolder(View itemView) {
-             super(itemView);
+            super(itemView);
+
+            usernameText = itemView.findViewById(R.id.message_item_profile_username);
+            profilePicture = itemView.findViewById(R.id.message_item_profile_image);
         }
 
         @Override
