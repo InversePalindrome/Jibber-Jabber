@@ -7,17 +7,14 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.content.Intent;
-import android.widget.EditText;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,8 +22,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 public class LoginActivity extends AppCompatActivity {
+    private FirebaseAuth auth;
+    private EditText emailEntry;
+    private EditText passwordEntry;
+    private CheckBox rememberMeCheckBox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +81,11 @@ public class LoginActivity extends AppCompatActivity {
         final String email = emailEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
 
-        if(TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(TextUtils.isEmpty(password)) {
+        if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), "Please enter password!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -89,11 +94,10 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             startActivity(new Intent(getBaseContext(), MainActivity.class));
                             finish();
-                        }
-                        else{
+                        } else {
                             Toast.makeText(getApplicationContext(), "Login failed! Please check your input.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -104,14 +108,8 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
-    public void onForgotPassword(View view){
+    public void onForgotPassword(View view) {
         startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
     }
-
-    private FirebaseAuth auth;
-
-    private EditText emailEntry;
-    private EditText passwordEntry;
-    private CheckBox rememberMeCheckBox;
 }
 

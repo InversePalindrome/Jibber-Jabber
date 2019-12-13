@@ -10,11 +10,6 @@ package com.inversepalindrome.jibberjabber;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,21 +18,41 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 
 public class MessagesFragment extends Fragment implements OnClickListener {
+    private FirebaseDatabase database;
+    private RecyclerView messagesView;
+    private ArrayList<MessageItem> messageItems;
+    private FloatingActionButton startMessageButton;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_messages, container, false);
 
         database = FirebaseDatabase.getInstance();
+
+        messageItems = new ArrayList<>();
+
+        messagesView = view.findViewById(R.id.messages_recycler_view);
+        messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        messagesView.setItemAnimator(new DefaultItemAnimator());
+        messagesView.setAdapter(new MessagesViewAdapter(R.layout.layout_message_item, messageItems));
 
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);
@@ -72,14 +87,14 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                 usersReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()){
-                            for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
+                                addMessageItem(receiverUserModel);
                                 openChat(receiverUserModel);
                             }
-                        }
-                        else{
+                        } else {
                             Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -102,15 +117,15 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startMessageDialog.show();
     }
 
-    private void openChat(UserModel receiverUserModel){
+    private void addMessageItem(UserModel receiverUserModel){
+
+    }
+
+    private void openChat(UserModel receiverUserModel) {
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra(Constants.USER_MODEL_RECEIVER, receiverUserModel);
         startActivity(intent);
     }
-
-    private FirebaseDatabase database;
-
-    private FloatingActionButton startMessageButton;
 }
 
 

@@ -7,26 +7,42 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 
 public class UserModel implements Parcelable {
-    public UserModel() {}
+    public static final Parcelable.Creator<UserModel> CREATOR = new Parcelable.Creator<UserModel>() {
+        @Override
+        public UserModel createFromParcel(Parcel source) {
+            return new UserModel(source);
+        }
 
-    public UserModel(String uID, String username, String email, String profileURI)
-    {
+        @Override
+        public UserModel[] newArray(int size) {
+            return new UserModel[size];
+        }
+    };
+    public String uID;
+    public String username;
+    public String email;
+    public String profileURI;
+    public UserModel() {
+    }
+
+    public UserModel(String uID, String username, String email, String profileURI) {
         this.uID = uID;
         this.username = username;
         this.email = email;
         this.profileURI = profileURI;
     }
 
-    public String uID;
-    public String username;
-    public String email;
-    public String profileURI;
+    protected UserModel(Parcel in) {
+        this.uID = in.readString();
+        this.username = in.readString();
+        this.email = in.readString();
+        this.profileURI = in.readString();
+    }
 
     @Override
     public int describeContents() {
@@ -40,23 +56,4 @@ public class UserModel implements Parcelable {
         dest.writeString(this.email);
         dest.writeString(this.profileURI);
     }
-
-    protected UserModel(Parcel in) {
-        this.uID = in.readString();
-        this.username = in.readString();
-        this.email = in.readString();
-        this.profileURI = in.readString();
-    }
-
-    public static final Parcelable.Creator<UserModel> CREATOR = new Parcelable.Creator<UserModel>() {
-        @Override
-        public UserModel createFromParcel(Parcel source) {
-            return new UserModel(source);
-        }
-
-        @Override
-        public UserModel[] newArray(int size) {
-            return new UserModel[size];
-        }
-    };
 }

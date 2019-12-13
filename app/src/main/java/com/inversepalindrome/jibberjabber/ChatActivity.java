@@ -7,9 +7,6 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -24,8 +21,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 
 public class ChatActivity extends AppCompatActivity {
+    private FirebaseDatabase database;
+    private ChatView chatView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,7 @@ public class ChatActivity extends AppCompatActivity {
         initializeChatView(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
     }
 
-    private void initializeChatView(UserModel receiverUserModel){
+    private void initializeChatView(UserModel receiverUserModel) {
         chatView = findViewById(R.id.chat_chat_view);
         chatView.setBackgroundColor(ContextCompat.getColor(this, R.color.darkerWhite));
         chatView.setRightBubbleColor(ContextCompat.getColor(this, R.color.lightGrey));
@@ -56,8 +58,7 @@ public class ChatActivity extends AppCompatActivity {
         Bitmap senderBitmap = null;
         try {
             senderBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), senderProfileURI);
-        }
-        catch(Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
 
@@ -68,8 +69,7 @@ public class ChatActivity extends AppCompatActivity {
         Bitmap receiverBitmap = null;
         try {
             receiverBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), receiverProfileURI);
-        }
-        catch(Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
 
@@ -101,15 +101,11 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private String getMessageID(String uID1, String uID2){
-       if(uID1.compareTo(uID2) < 0){
-           return uID1 + uID2;
-       }
+    private String getMessageID(String uID1, String uID2) {
+        if (uID1.compareTo(uID2) < 0) {
+            return uID1 + uID2;
+        }
 
-       return uID2 + uID1;
+        return uID2 + uID1;
     }
-
-    private FirebaseDatabase database;
-
-    private ChatView chatView;
 }

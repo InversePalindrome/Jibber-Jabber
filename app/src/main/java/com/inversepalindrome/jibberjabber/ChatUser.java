@@ -16,6 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class ChatUser implements IChatUser {
+    private String id;
+    private String username;
+    private Bitmap icon;
+
     public ChatUser(String id, String username, Bitmap icon) {
         this.id = id;
         this.username = username;
@@ -26,6 +30,11 @@ public class ChatUser implements IChatUser {
     @Override
     public Bitmap getIcon() {
         return this.icon;
+    }
+
+    @Override
+    public void setIcon(@NotNull Bitmap bitmap) {
+        this.icon = bitmap;
     }
 
     @NotNull
@@ -39,13 +48,4 @@ public class ChatUser implements IChatUser {
     public String getName() {
         return this.username;
     }
-
-    @Override
-    public void setIcon(@NotNull Bitmap bitmap) {
-        this.icon = bitmap;
-    }
-
-    private String id;
-    private String username;
-    private Bitmap icon;
 }

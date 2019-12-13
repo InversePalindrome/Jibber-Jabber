@@ -7,14 +7,6 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.FragmentActivity;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,10 +14,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.EditText;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,8 +30,14 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import java.util.HashMap;
+import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 import pl.aprilapps.easyphotopicker.ChooserType;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -47,7 +45,19 @@ import pl.aprilapps.easyphotopicker.MediaFile;
 import pl.aprilapps.easyphotopicker.MediaSource;
 
 
-public class ProfileFragment extends Fragment implements OnClickListener{
+public class ProfileFragment extends Fragment implements OnClickListener {
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private FirebaseDatabase database;
+    private CircleImageView profileImage;
+    private TextView usernameText;
+    private Button logOutButton;
+    private Button changeEmailButton;
+    private Button changePasswordButton;
+    private FloatingActionButton galleryButton;
+    private FloatingActionButton cameraButton;
+    private EasyImage profileDialog;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -84,8 +94,8 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     @Override
-    public void onClick(View view){
-        switch(view.getId()){
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.profile_change_email_button:
                 onChangeEmail();
                 break;
@@ -105,7 +115,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         profileDialog.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
@@ -128,7 +138,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         });
     }
 
-    private void onChangeEmail(){
+    private void onChangeEmail() {
         AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
@@ -141,7 +151,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 final EditText emailEntry = emailLayout.findViewById(R.id.change_email_entry);
                 final String newEmail = emailEntry.getText().toString();
 
-                if(TextUtils.isEmpty(newEmail)){
+                if (TextUtils.isEmpty(newEmail)) {
                     Toast.makeText(getActivity(), "Please enter email!", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -149,12 +159,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 user.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Toast.makeText(getActivity(), "Email address updated successfully!", Toast.LENGTH_SHORT).show();
 
                             updateDatabaseEmail(newEmail);
-                        }
-                        else{
+                        } else {
                             Toast.makeText(getActivity(), "Email address failed to be updated!", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -172,7 +181,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         emailDialog.show();
     }
 
-    private void onChangePassword(){
+    private void onChangePassword() {
         AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
@@ -185,11 +194,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 final EditText passwordEntry = passwordLayout.findViewById(R.id.change_password_entry);
                 final String newPassword = passwordEntry.getText().toString();
 
-                if(TextUtils.isEmpty(newPassword)){
+                if (TextUtils.isEmpty(newPassword)) {
                     Toast.makeText(getActivity(), "Please enter password!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(newPassword.length() < Constants.MIN_PASSWORD_LENGTH){
+                if (newPassword.length() < Constants.MIN_PASSWORD_LENGTH) {
                     Toast.makeText(getActivity(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -197,10 +206,9 @@ public class ProfileFragment extends Fragment implements OnClickListener{
                 user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Toast.makeText(getActivity(), "Password successfully updated!", Toast.LENGTH_SHORT).show();
-                        }
-                        else{
+                        } else {
                             Toast.makeText(getActivity(), "Password failed to be updated!", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -218,7 +226,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         passwordDialog.show();
     }
 
-    private void onLogOut(){
+    private void onLogOut() {
         auth.signOut();
 
         FragmentActivity activity = getActivity();
@@ -226,15 +234,15 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         activity.finish();
     }
 
-    private void onOpenGallery(){
+    private void onOpenGallery() {
         profileDialog.openGallery(this);
     }
 
-    private void onOpenCamera(){
-       profileDialog.openCameraForImage(this);
+    private void onOpenCamera() {
+        profileDialog.openCameraForImage(this);
     }
 
-    private void updateAuthProfileURL(Uri uri){
+    private void updateAuthProfileURL(Uri uri) {
         FirebaseUser user = auth.getCurrentUser();
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                 .setPhotoUri(uri)
@@ -242,7 +250,7 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         user.updateProfile(profileUpdate);
     }
 
-    private void updateDatabaseProfileURI(String filePath){
+    private void updateDatabaseProfileURI(String filePath) {
         Map<String, Object> userUpdates = new HashMap<>();
         userUpdates.put("profileURI", filePath);
 
@@ -250,27 +258,11 @@ public class ProfileFragment extends Fragment implements OnClickListener{
         usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
 
-    private void updateDatabaseEmail(String newEmail){
+    private void updateDatabaseEmail(String newEmail) {
         Map<String, Object> userUpdates = new HashMap<>();
         userUpdates.put("email", newEmail);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
-
-    private FirebaseAuth auth;
-    private FirebaseUser user;
-    private FirebaseDatabase database;
-
-    private CircleImageView profileImage;
-
-    private TextView usernameText;
-    private Button logOutButton;
-    private Button changeEmailButton;
-    private Button changePasswordButton;
-
-    private FloatingActionButton galleryButton;
-    private FloatingActionButton cameraButton;
-
-    private EasyImage profileDialog;
 }

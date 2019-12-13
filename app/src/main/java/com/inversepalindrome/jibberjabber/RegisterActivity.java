@@ -7,17 +7,14 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,8 +25,18 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 public class RegisterActivity extends AppCompatActivity {
+    private FirebaseAuth auth;
+    private FirebaseDatabase database;
+    private EditText usernameEntry;
+    private EditText emailEntry;
+    private EditText passwordEntry;
+    private EditText rePasswordEntry;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,29 +51,29 @@ public class RegisterActivity extends AppCompatActivity {
         rePasswordEntry = findViewById(R.id.register_repassword_entry);
     }
 
-    public void onRegister(View view){
+    public void onRegister(View view) {
         final String username = usernameEntry.getText().toString();
         final String email = emailEntry.getText().toString();
         final String password = passwordEntry.getText().toString();
         final String rePassword = rePasswordEntry.getText().toString();
 
-        if(TextUtils.isEmpty(username)){
+        if (TextUtils.isEmpty(username)) {
             Toast.makeText(getApplicationContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
+        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
             Toast.makeText(getApplicationContext(), "Please enter password!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!TextUtils.equals(password, rePassword)){
+        if (!TextUtils.equals(password, rePassword)) {
             Toast.makeText(getApplicationContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(password.length() < Constants.MIN_PASSWORD_LENGTH){
+        if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
             Toast.makeText(getApplicationContext(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -75,12 +82,12 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
 
                             FirebaseUser user = auth.getCurrentUser();
 
-                            if(user != null) {
+                            if (user != null) {
                                 Resources resources = getResources();
                                 Uri profileURI = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                                         + resources.getResourcePackageName(R.drawable.default_profile_icon) + '/'
@@ -92,15 +99,14 @@ public class RegisterActivity extends AppCompatActivity {
                             }
 
                             finish();
-                        }
-                        else{
+                        } else {
                             Toast.makeText(getApplicationContext(), "Registration failed! Please try again later", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
     }
 
-    private void updateAuthAccount(FirebaseUser user, String username, Uri profileURI){
+    private void updateAuthAccount(FirebaseUser user, String username, Uri profileURI) {
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(username)
                 .setPhotoUri(profileURI)
@@ -108,18 +114,10 @@ public class RegisterActivity extends AppCompatActivity {
         user.updateProfile(profileUpdate);
     }
 
-    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI){
+    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI) {
         UserModel userModel = new UserModel(user.getUid(), username, email, profileURI);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
         usersReference.child(user.getUid()).setValue(userModel);
     }
-
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
-
-    private EditText usernameEntry;
-    private EditText emailEntry;
-    private EditText passwordEntry;
-    private EditText rePasswordEntry;
 }

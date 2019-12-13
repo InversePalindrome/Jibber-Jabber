@@ -9,15 +9,16 @@ package com.inversepalindrome.jibberjabber;
 
 
 public class MessageModel {
-    public MessageModel(){}
+    public String senderID;
+    public String receiverID;
+    public String message;
+
+    public MessageModel() {
+    }
 
     public MessageModel(String senderID, String receiverID, String message) {
         this.senderID = senderID;
         this.receiverID = receiverID;
         this.message = message;
     }
-
-    public String senderID;
-    public String receiverID;
-    public String message;
 }

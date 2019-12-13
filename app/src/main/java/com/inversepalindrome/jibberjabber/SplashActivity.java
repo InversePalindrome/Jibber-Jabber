@@ -7,10 +7,10 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
 import android.content.Intent;
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 
 public class SplashActivity extends AppCompatActivity {
