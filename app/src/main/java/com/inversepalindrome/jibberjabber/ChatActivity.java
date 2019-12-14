@@ -18,9 +18,15 @@ import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -28,6 +34,8 @@ import androidx.core.content.ContextCompat;
 public class ChatActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private ChatView chatView;
+    private ChatUser senderUser;
+    private ChatUser receiverUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +44,14 @@ public class ChatActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-        initializeChatView(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
+        initChatUsers(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
+        initializeChatView();
+        loadConversation();
+
+        setTitle(receiverUser.getName());
     }
 
-    private void initializeChatView(UserModel receiverUserModel) {
+    private void initializeChatView() {
         chatView = findViewById(R.id.chat_chat_view);
         chatView.setBackgroundColor(ContextCompat.getColor(this, R.color.darkerWhite));
         chatView.setRightBubbleColor(ContextCompat.getColor(this, R.color.lightGrey));
@@ -52,8 +64,33 @@ public class ChatActivity extends AppCompatActivity {
         chatView.setMessageMarginTop(5);
         chatView.setMessageMarginBottom(5);
 
-        FirebaseUser senderUser = FirebaseAuth.getInstance().getCurrentUser();
-        Uri senderProfileURI = Uri.parse(senderUser.getPhotoUrl().getPath());
+        chatView.setOnClickSendButtonListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Message message = new Message.Builder()
+                        .setUser(senderUser)
+                        .setRight(true)
+                        .setText(chatView.getInputText())
+                        .hideIcon(true)
+                        .build();
+
+                chatView.send(message);
+
+                chatView.setInputText("");
+
+                MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText());
+
+                DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+                DatabaseReference chatReference = messagesReference.child(
+                        MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
+                chatReference.push().setValue(messageModel);
+            }
+        });
+    }
+
+    private void initChatUsers(UserModel receiverUserModel){
+        FirebaseUser senderAuthUser = FirebaseAuth.getInstance().getCurrentUser();
+        Uri senderProfileURI = Uri.parse(senderAuthUser.getPhotoUrl().getPath());
 
         Bitmap senderBitmap = null;
         try {
@@ -61,8 +98,6 @@ public class ChatActivity extends AppCompatActivity {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-
-        setTitle(receiverUserModel.username);
 
         Uri receiverProfileURI = Uri.parse(receiverUserModel.profileURI);
 
@@ -73,39 +108,82 @@ public class ChatActivity extends AppCompatActivity {
             exception.printStackTrace();
         }
 
-        ChatUser senderChatUser = new ChatUser(senderUser.getEmail(), senderUser.getDisplayName(), senderBitmap);
-        ChatUser receiverChatUser = new ChatUser(receiverUserModel.email, receiverUserModel.username, receiverBitmap);
-
-        chatView.setOnClickSendButtonListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Message message = new Message.Builder()
-                        .setUser(senderChatUser)
-                        .setRight(true)
-                        .setText(chatView.getInputText())
-                        .hideIcon(true)
-                        .build();
-
-                chatView.send(message);
-
-                chatView.setInputText("");
-
-                final String senderID = senderUser.getUid();
-                final String receiverID = receiverUserModel.uID;
-
-                MessageModel messageModel = new MessageModel(senderID, receiverID, message.getText());
-
-                DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
-                messagesReference.child(getMessageID(senderID, receiverID)).setValue(messageModel);
-            }
-        });
+        senderUser = new ChatUser(senderAuthUser.getUid(), senderAuthUser.getEmail(), senderAuthUser.getDisplayName(), senderBitmap);
+        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username, receiverBitmap);
     }
 
-    private String getMessageID(String uID1, String uID2) {
-        if (uID1.compareTo(uID2) < 0) {
-            return uID1 + uID2;
-        }
+    private void loadConversation(){
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+        DatabaseReference chatReference = messagesReference.child(
+                MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
 
-        return uID2 + uID1;
+        chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot childDataSnapshot : dataSnapshot.getChildren()){
+                    final String messageText = childDataSnapshot.child(Constants.DATABASE_MESSAGE_NODE).getValue().toString();
+                    final String senderID = childDataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
+
+                    if(senderUser.getId().equals(senderID)){
+                        Message message = new Message.Builder()
+                                .setUser(senderUser)
+                                .setRight(true)
+                                .setText(messageText)
+                                .hideIcon(true)
+                                .build();
+
+                        chatView.send(message);
+                    }
+                    else {
+                        Message message = new Message.Builder()
+                                .setUser(receiverUser)
+                                .setRight(false)
+                                .setText(messageText)
+                                .hideIcon(true)
+                                .build();
+
+                        chatView.receive(message);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+
+        chatReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
+
+                if(!messageModel.senderID.equals(senderUser.getId())){
+                    Message message = new Message.Builder()
+                            .setUser(receiverUser)
+                            .setRight(false)
+                            .setText(messageModel.message)
+                            .hideIcon(true)
+                            .build();
+
+                    chatView.receive(message);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 }

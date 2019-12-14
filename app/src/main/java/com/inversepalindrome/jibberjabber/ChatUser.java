@@ -16,14 +16,28 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class ChatUser implements IChatUser {
-    private String id;
+    private String uID;
+    private String email;
     private String username;
     private Bitmap icon;
 
-    public ChatUser(String id, String username, Bitmap icon) {
-        this.id = id;
+    public ChatUser(String uID, String email, String username, Bitmap icon) {
+        this.uID = uID;
+        this.email = email;
         this.username = username;
         this.icon = icon;
+    }
+
+    @NotNull
+    @Override
+    public String getId() {
+        return this.uID;
+    }
+
+    @Nullable
+    @Override
+    public String getName() {
+        return this.username;
     }
 
     @Nullable
@@ -37,15 +51,7 @@ public class ChatUser implements IChatUser {
         this.icon = bitmap;
     }
 
-    @NotNull
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    @Nullable
-    @Override
-    public String getName() {
-        return this.username;
+    public String getEmail(){
+        return this.email;
     }
 }

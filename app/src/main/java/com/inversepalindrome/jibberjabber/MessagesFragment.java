@@ -57,6 +57,8 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);
 
+        loadConversations();
+
         return view;
     }
 
@@ -84,7 +86,8 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
                 DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
 
-                usersReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+                usersReference.orderByChild(Constants.DATABASE_EMAIL_NODE).equalTo(email).
+                        addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
@@ -121,6 +124,29 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         intent.putExtra(Constants.USER_MODEL_RECEIVER, receiverUserModel);
         startActivity(intent);
     }
+
+    private void loadConversations(){
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+        messagesReference.orderByChild(Constants.DATABASE_SENDER_NODE).equalTo(Constants.DATABASE_SENDER_NODE)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                    final String receiverID = childDataSnapshot.child(Constants.DATABASE_RECEIVER_NODE).getValue().toString();
+
+                    DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+                    DatabaseReference receiverReference = usersReference.child(receiverID);
+
+                    final String username = receiverReference.child(Constants.DATABASE_USERNAME_NODE).toString();
+                    final String profileURI = receiverReference.child(Constants.DATABASE_PROFILE_URI_NODE).toString();
+
+                    messageItems.add(new MessageItem(username, profileURI));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
 }
-
-
