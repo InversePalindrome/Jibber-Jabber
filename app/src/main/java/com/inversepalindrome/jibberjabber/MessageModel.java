@@ -12,13 +12,15 @@ public class MessageModel {
     public String senderID;
     public String receiverID;
     public String message;
+    public String timeStamp;
 
     public MessageModel() {
     }
 
-    public MessageModel(String senderID, String receiverID, String message) {
+    public MessageModel(String senderID, String receiverID, String message, String timeStamp) {
         this.senderID = senderID;
         this.receiverID = receiverID;
         this.message = message;
+        this.timeStamp = timeStamp;
     }
 }

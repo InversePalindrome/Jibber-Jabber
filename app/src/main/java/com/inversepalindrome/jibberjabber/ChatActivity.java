@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,16 +45,17 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         database = FirebaseDatabase.getInstance();
+        chatView = findViewById(R.id.chat_chat_view);
 
         initChatUsers(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
-        initializeChatView();
         loadConversation();
+
+        customizeChatView();
 
         setTitle(receiverUser.getName());
     }
 
-    private void initializeChatView() {
-        chatView = findViewById(R.id.chat_chat_view);
+    private void customizeChatView() {
         chatView.setBackgroundColor(ContextCompat.getColor(this, R.color.darkerWhite));
         chatView.setRightBubbleColor(ContextCompat.getColor(this, R.color.lightGrey));
         chatView.setLeftBubbleColor(Color.WHITE);
@@ -75,10 +78,12 @@ public class ChatActivity extends AppCompatActivity {
                         .build();
 
                 chatView.send(message);
-
                 chatView.setInputText("");
 
-                MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText());
+                Long tsLong = System.currentTimeMillis()/1000;
+                String timeStamp = tsLong.toString();
+
+                MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
 
                 DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
                 DatabaseReference chatReference = messagesReference.child(
@@ -123,12 +128,17 @@ public class ChatActivity extends AppCompatActivity {
                 for(DataSnapshot childDataSnapshot : dataSnapshot.getChildren()){
                     final String messageText = childDataSnapshot.child(Constants.DATABASE_MESSAGE_NODE).getValue().toString();
                     final String senderID = childDataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
+                    final String timeStamp = childDataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(Long.parseLong(timeStamp) * 1000);
 
                     if(senderUser.getId().equals(senderID)){
                         Message message = new Message.Builder()
                                 .setUser(senderUser)
                                 .setRight(true)
                                 .setText(messageText)
+                                .setSendTime(calendar)
                                 .hideIcon(true)
                                 .build();
 
@@ -139,6 +149,7 @@ public class ChatActivity extends AppCompatActivity {
                                 .setUser(receiverUser)
                                 .setRight(false)
                                 .setText(messageText)
+                                .setSendTime(calendar)
                                 .hideIcon(true)
                                 .build();
 
@@ -152,7 +163,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        chatReference.addChildEventListener(new ChildEventListener() {
+        chatReference.limitToLast(1).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);

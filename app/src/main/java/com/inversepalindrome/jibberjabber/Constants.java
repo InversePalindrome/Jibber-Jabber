@@ -15,6 +15,7 @@ public class Constants {
     public static final String DATABASE_MESSAGE_NODE = "message";
     public static final String DATABASE_SENDER_NODE = "senderID";
     public static final String DATABASE_RECEIVER_NODE = "receiverID";
+    public static final String DATABASE_TIMESTAMP_NODE = "timeStamp";
     public static final String DATABASE_USERNAME_NODE = "username";
     public static final String DATABASE_EMAIL_NODE = "email";
     public static final String DATABASE_PROFILE_URI_NODE = "profileURI";

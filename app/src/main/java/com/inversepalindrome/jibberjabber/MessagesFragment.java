@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,7 +58,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);
 
-        loadConversations();
+        loadConversations(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         return view;
     }
@@ -94,6 +95,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                             for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
+                                addConversation(FirebaseAuth.getInstance().getCurrentUser().getUid(), receiverUserModel.uID);
                                 openChat(receiverUserModel);
                             }
                         } else {
@@ -125,22 +127,57 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startActivity(intent);
     }
 
-    private void loadConversations(){
+    private void addConversation(String senderID, String receiverID){
         DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
-        messagesReference.orderByChild(Constants.DATABASE_SENDER_NODE).equalTo(Constants.DATABASE_SENDER_NODE)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        messagesReference.child(MessageIDCreator.getMessageID(senderID, receiverID));
+
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        DatabaseReference receiverReference = usersReference.child(receiverID);
+
+        receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                    final String receiverID = childDataSnapshot.child(Constants.DATABASE_RECEIVER_NODE).getValue().toString();
+                final String receiverUsername = dataSnapshot.child(
+                        Constants.DATABASE_USERNAME_NODE).getValue().toString();
+                final String receiverProfileURI = dataSnapshot.child(
+                        Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
+
+                messageItems.add(new MessageItem(receiverUsername, receiverProfileURI));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadConversations(String senderID){
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+        messagesReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot chatDataSnapshot : dataSnapshot.getChildren()) {
+                    //TODO: Fix tree traversal
+                    final String receiverID = chatDataSnapshot.child(Constants.DATABASE_RECEIVER_NODE).getValue().toString();
 
                     DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
                     DatabaseReference receiverReference = usersReference.child(receiverID);
+                    receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot receiverDataSnapshot) {
+                            final String receiverUsername = receiverDataSnapshot.child(
+                                    Constants.DATABASE_USERNAME_NODE).getValue().toString();
+                            final String receiverProfileURI = receiverDataSnapshot.child(
+                                    Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
 
-                    final String username = receiverReference.child(Constants.DATABASE_USERNAME_NODE).toString();
-                    final String profileURI = receiverReference.child(Constants.DATABASE_PROFILE_URI_NODE).toString();
+                            messageItems.add(new MessageItem(receiverUsername, receiverProfileURI));
+                        }
 
-                    messageItems.add(new MessageItem(username, profileURI));
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
+                    });
                 }
             }
 
