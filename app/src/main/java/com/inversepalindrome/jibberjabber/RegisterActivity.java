@@ -117,7 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI) {
         UserModel userModel = new UserModel(user.getUid(), username, email, profileURI);
 
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).setValue(userModel);
     }
 }

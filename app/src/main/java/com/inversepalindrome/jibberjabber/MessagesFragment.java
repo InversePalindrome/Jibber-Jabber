@@ -85,7 +85,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                 final EditText emailEntry = startMessageLayout.findViewById(R.id.start_message_email_entry);
                 final String email = emailEntry.getText().toString();
 
-                DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+                DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
 
                 usersReference.orderByChild(Constants.DATABASE_EMAIL_NODE).equalTo(email).
                         addListenerForSingleValueEvent(new ValueEventListener() {
@@ -128,12 +128,27 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     }
 
     private void addConversation(String senderID, String receiverID){
-        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
-        messagesReference.child(MessageIDCreator.getMessageID(senderID, receiverID));
+        String chatID = MessageIDCreator.getMessageID(senderID, receiverID);
 
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
+        DatabaseReference chatReference = chatsReference.child(chatID);
+        DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
+        membersReference.child(senderID);
+        membersReference.child(receiverID);
+
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
+        messagesReference.child(chatID);
+
+        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
+        senderChatsReference.child(chatID);
+
+        DatabaseReference receiverChatsReference = usersChatsReference.child(receiverID);
+        receiverChatsReference.child(chatID);
+
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         DatabaseReference receiverReference = usersReference.child(receiverID);
-
         receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -153,31 +168,16 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     }
 
     private void loadConversations(String senderID){
-        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
-        messagesReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        ArrayList<String> chatIDs = new ArrayList<>();
+
+        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
+        senderChatsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot chatDataSnapshot : dataSnapshot.getChildren()) {
-                    //TODO: Fix tree traversal
-                    final String receiverID = chatDataSnapshot.child(Constants.DATABASE_RECEIVER_NODE).getValue().toString();
-
-                    DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
-                    DatabaseReference receiverReference = usersReference.child(receiverID);
-                    receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot receiverDataSnapshot) {
-                            final String receiverUsername = receiverDataSnapshot.child(
-                                    Constants.DATABASE_USERNAME_NODE).getValue().toString();
-                            final String receiverProfileURI = receiverDataSnapshot.child(
-                                    Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
-
-                            messageItems.add(new MessageItem(receiverUsername, receiverProfileURI));
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                        }
-                    });
+                for(DataSnapshot chatDataSnapshot : dataSnapshot.getChildren()){
+                    chatIDs.add(chatDataSnapshot.getKey());
                 }
             }
 
@@ -185,5 +185,53 @@ public class MessagesFragment extends Fragment implements OnClickListener {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+
+        ArrayList<String> receiverIDs = new ArrayList<>();
+
+        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
+
+        for(String chatID : chatIDs){
+            DatabaseReference chatReference = chatsReference.child(chatID);
+            DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
+
+            membersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for(DataSnapshot memberSnapshot : dataSnapshot.getChildren()){
+                        String memberID = memberSnapshot.getKey();
+
+                        if(!memberID.equals(senderID)){
+                            receiverIDs.add(memberID);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+
+            DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+
+            for(String receiverID : receiverIDs){
+                DatabaseReference receiverReference = usersReference.child(receiverID);
+
+                receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        final String receiverUsername = dataSnapshot.child(
+                                Constants.DATABASE_USERNAME_NODE).getValue().toString();
+                        final String receiverProfileURI = dataSnapshot.child(
+                                Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
+
+                        messageItems.add(new MessageItem(receiverUsername, receiverProfileURI));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            }
+        }
     }
 }

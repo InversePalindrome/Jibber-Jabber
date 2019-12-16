@@ -85,7 +85,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
 
-                DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+                DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
                 DatabaseReference chatReference = messagesReference.child(
                         MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
                 chatReference.push().setValue(messageModel);
@@ -118,7 +118,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadConversation(){
-        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES);
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
         DatabaseReference chatReference = messagesReference.child(
                 MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
 
@@ -163,7 +163,9 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        chatReference.limitToLast(1).addChildEventListener(new ChildEventListener() {
+        final String startKey = chatReference.push().getKey();
+
+        chatReference.orderByKey().startAt(startKey).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);

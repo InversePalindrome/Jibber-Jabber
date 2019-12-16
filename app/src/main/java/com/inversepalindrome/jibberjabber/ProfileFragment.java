@@ -254,7 +254,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         Map<String, Object> userUpdates = new HashMap<>();
         userUpdates.put("profileURI", filePath);
 
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
 
@@ -262,7 +262,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         Map<String, Object> userUpdates = new HashMap<>();
         userUpdates.put("email", newEmail);
 
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS);
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
 }
