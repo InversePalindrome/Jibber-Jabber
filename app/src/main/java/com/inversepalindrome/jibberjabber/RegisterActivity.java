@@ -53,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void onRegister(View view) {
         final String username = usernameEntry.getText().toString();
-        final String email = emailEntry.getText().toString();
+        final String email = emailEntry.getText().toString().toLowerCase();
         final String password = passwordEntry.getText().toString();
         final String rePassword = rePasswordEntry.getText().toString();
 

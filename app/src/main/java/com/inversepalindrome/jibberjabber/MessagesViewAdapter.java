@@ -11,28 +11,35 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapter.ViewHolder> {
+public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder> {
     private int layout;
-    private ArrayList<MessageItem> messageList;
+    private ArrayList<UserModel> userList;
+    private final OnClickListener listener;
 
-    public MessagesViewAdapter(int layout, ArrayList<MessageItem> messageList) {
+
+    public MessagesViewAdapter(int layout, ArrayList<UserModel> userList, OnClickListener listener) {
         this.layout = layout;
-        this.messageList = messageList;
+        this.userList = userList;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+        view.setOnClickListener(listener);
         ViewHolder viewHolder = new ViewHolder(view);
 
         return viewHolder;
@@ -43,15 +50,15 @@ public class MessagesViewAdapter extends RecyclerView.Adapter<MessagesViewAdapte
         TextView usernameText = holder.usernameText;
         CircleImageView profilePicture = holder.profilePicture;
 
-        MessageItem messageItem = messageList.get(position);
+        UserModel userModel = userList.get(position);
 
-        usernameText.setText(messageItem.getUsername());
-        profilePicture.setImageURI(Uri.parse(messageItem.getProfileURI()));
+        usernameText.setText(userModel.username);
+        profilePicture.setImageURI(Uri.parse(userModel.profileURI));
     }
 
     @Override
     public int getItemCount() {
-        return messageList == null ? 0 : messageList.size();
+        return userList == null ? 0 : userList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

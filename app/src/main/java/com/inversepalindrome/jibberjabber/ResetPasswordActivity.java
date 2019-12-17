@@ -37,7 +37,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     public void onResetPassword(View view) {
-        final String email = emailEntry.getText().toString();
+        final String email = emailEntry.getText().toString().toLowerCase();
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplication(), "Enter your registered email!", Toast.LENGTH_SHORT).show();

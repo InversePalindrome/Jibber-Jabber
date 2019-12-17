@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLogin(View view) {
-        final String email = emailEntry.getText().toString();
+        final String email = emailEntry.getText().toString().toLowerCase();
         final String password = passwordEntry.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
