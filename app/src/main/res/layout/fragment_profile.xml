@@ -17,7 +17,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="35dp"
         app:layout_constraintBottom_toTopOf="@+id/profile_username_text"
-        app:layout_constraintEnd_toStartOf="@+id/profile_gallery_button"
+        app:layout_constraintEnd_toStartOf="@+id/profile_camera_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,12 +26,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="28dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="154dp"
         android:fontFamily="@font/baloo"
         android:text="@string/log_out"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_change_password_button" />
@@ -41,12 +42,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="28dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="29dp"
         android:fontFamily="@font/baloo"
         android:text="@string/change_password"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/profile_log_out_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_change_email_button" />
@@ -56,12 +58,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="28dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="28dp"
         android:fontFamily="@font/baloo"
         android:text="@string/change_email"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/profile_change_password_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_username_text" />
@@ -71,42 +74,42 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="49dp"
-        android:layout_marginTop="35dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="29dp"
         android:fontFamily="@font/baloo"
         android:singleLine="true"
         android:text="@string/username"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/profile_change_email_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_camera_button" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_profile_image" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/profile_camera_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="188dp"
-        android:layout_marginEnd="25dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="33dp"
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/camera_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/profile_profile_image"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_gallery_button" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/profile_gallery_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="34dp"
-        android:layout_marginBottom="29dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="46dp"
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/gallery_icon"
-        app:layout_constraintBottom_toTopOf="@+id/profile_camera_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_profile_image" />
+        app:layout_constraintStart_toEndOf="@+id/profile_profile_image"
+        app:layout_constraintTop_toTopOf="@+id/profile_profile_image" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

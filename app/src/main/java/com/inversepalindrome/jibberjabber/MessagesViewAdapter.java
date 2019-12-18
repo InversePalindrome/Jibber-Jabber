@@ -7,6 +7,8 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.util.ArrayList;
+
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,12 +50,12 @@ public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TextView usernameText = holder.usernameText;
-        CircleImageView profilePicture = holder.profilePicture;
+        CircleImageView profileImage = holder.profilePicture;
 
         UserModel userModel = userList.get(position);
 
         usernameText.setText(userModel.username);
-        profilePicture.setImageURI(Uri.parse(userModel.profileURI));
+        Picasso.get().load(Uri.parse(userModel.profileURI)).into(profileImage);
     }
 
     @Override

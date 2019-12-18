@@ -22,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +31,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +55,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
     private CircleImageView profileImage;
     private TextView usernameText;
     private Button logOutButton;
@@ -66,6 +73,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         profileImage = view.findViewById(R.id.profile_profile_image);
         usernameText = view.findViewById(R.id.profile_username_text);
@@ -82,7 +90,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         galleryButton.setOnClickListener(this);
         cameraButton.setOnClickListener(this);
 
-        profileImage.setImageURI(user.getPhotoUrl());
+        setProfileImage(user.getPhotoUrl());
         usernameText.setText(user.getDisplayName());
 
         profileDialog = new EasyImage.Builder(getContext()).
@@ -123,11 +131,10 @@ public class ProfileFragment extends Fragment implements OnClickListener {
             public void onMediaFilesPicked(@NonNull MediaFile[] imageFiles, @NonNull MediaSource source) {
                 MediaFile image = imageFiles[0];
                 String filePath = image.getFile().toString();
-
                 Uri uri = Uri.parse(filePath);
-                profileImage.setImageURI(uri);
 
-                updateAuthProfileURL(uri);
+                setProfileImage(uri);
+                updateAuthProfileURI(uri);
                 updateDatabaseProfileURI(filePath);
             }
 
@@ -242,7 +249,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         profileDialog.openCameraForImage(this);
     }
 
-    private void updateAuthProfileURL(Uri uri) {
+    private void updateAuthProfileURI(Uri uri) {
         FirebaseUser user = auth.getCurrentUser();
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                 .setPhotoUri(uri)
@@ -264,5 +271,24 @@ public class ProfileFragment extends Fragment implements OnClickListener {
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
+    }
+
+    private void setProfileImage(Uri uri){
+        StorageReference profileRef = storage.getReference().child("images/" + uri.getLastPathSegment());
+        UploadTask uploadTask = profileRef.putFile(uri);
+
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Picasso.get().load(uri).into(profileImage);
+            }
+        });
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), "Error: Profile image couldn't be uploaded", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

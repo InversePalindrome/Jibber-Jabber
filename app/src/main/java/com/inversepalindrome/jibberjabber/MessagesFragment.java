@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,10 +65,17 @@ public class MessagesFragment extends Fragment implements OnClickListener {
             }
         });
 
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+
         messagesView = view.findViewById(R.id.messages_recycler_view);
-        messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        messagesView.setLayoutManager(linearLayoutManager);
         messagesView.setItemAnimator(new DefaultItemAnimator());
         messagesView.setAdapter(messagesViewAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(messagesView.getContext(),
+                linearLayoutManager.getOrientation());
+
+        messagesView.addItemDecoration(dividerItemDecoration);
 
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);

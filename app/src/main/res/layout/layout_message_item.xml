@@ -4,25 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="120dp">
+    android:layout_height="115dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/message_item_profile_image"
-        android:layout_width="138dp"
-        android:layout_height="120dp"
-        app:layout_constraintBottom_toBottomOf="@+id/message_item_profile_username"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/message_item_profile_username"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.466" />
 
     <TextView
         android:id="@+id/message_item_profile_username"
-        android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_width="257dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|start"
         android:fontFamily="@font/baloo"
+        android:gravity="center|start"
         android:textColor="#000000"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/message_item_profile_image"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.466" />
 </androidx.constraintlayout.widget.ConstraintLayout>
