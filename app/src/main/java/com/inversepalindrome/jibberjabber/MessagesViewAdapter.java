@@ -16,6 +16,9 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
@@ -29,12 +32,15 @@ public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder>
     private int layout;
     private ArrayList<UserModel> userList;
     private final OnClickListener listener;
+    private FirebaseStorage storage;
 
 
     public MessagesViewAdapter(int layout, ArrayList<UserModel> userList, OnClickListener listener) {
         this.layout = layout;
         this.userList = userList;
         this.listener = listener;
+
+        storage = FirebaseStorage.getInstance();
     }
 
     @NonNull
@@ -55,7 +61,16 @@ public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder>
         UserModel userModel = userList.get(position);
 
         usernameText.setText(userModel.username);
-        Picasso.get().load(Uri.parse(userModel.profileURI)).into(profileImage);
+
+        StorageReference profileImageReference = storage.getReference()
+                .child(Constants.STORAGE_IMAGES_NODE).child(userModel.profileURI);
+
+        profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(profileImage);
+            }
+        });
     }
 
     @Override

@@ -21,11 +21,10 @@ public class ChatUser implements IChatUser {
     private String username;
     private Bitmap icon;
 
-    public ChatUser(String uID, String email, String username, Bitmap icon) {
+    public ChatUser(String uID, String email, String username) {
         this.uID = uID;
         this.email = email;
         this.username = username;
-        this.icon = icon;
     }
 
     @NotNull

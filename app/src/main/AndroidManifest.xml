@@ -18,13 +18,14 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatActivity"></activity>
-        <activity android:name=".ResetPasswordActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".ChatActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ResetPasswordActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".RegisterActivity" android:screenOrientation="portrait"/>
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/AppTheme.Launcher">
+            android:theme="@style/AppTheme.Launcher"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity" android:screenOrientation="portrait" />
     </application>
 
 </manifest>

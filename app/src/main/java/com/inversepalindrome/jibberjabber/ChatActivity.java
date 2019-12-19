@@ -7,11 +7,8 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 
 import com.github.bassaer.chatmessageview.model.Message;
@@ -47,7 +44,12 @@ public class ChatActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         chatView = findViewById(R.id.chat_chat_view);
 
-        initChatUsers(getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER));
+        FirebaseUser senderAuthUser = FirebaseAuth.getInstance().getCurrentUser();
+        UserModel receiverUserModel = getIntent().getParcelableExtra(Constants.USER_MODEL_RECEIVER);
+
+        senderUser = new ChatUser(senderAuthUser.getUid(), senderAuthUser.getEmail(), senderAuthUser.getDisplayName());
+        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
+
         loadConversation();
 
         customizeChatView();
@@ -80,8 +82,8 @@ public class ChatActivity extends AppCompatActivity {
                 chatView.send(message);
                 chatView.setInputText("");
 
-                Long tsLong = System.currentTimeMillis()/1000;
-                String timeStamp = tsLong.toString();
+                final Long tsLong = System.currentTimeMillis()/1000;
+                final String timeStamp = tsLong.toString();
 
                 MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
 
@@ -91,30 +93,6 @@ public class ChatActivity extends AppCompatActivity {
                 chatReference.push().setValue(messageModel);
             }
         });
-    }
-
-    private void initChatUsers(UserModel receiverUserModel){
-        FirebaseUser senderAuthUser = FirebaseAuth.getInstance().getCurrentUser();
-        Uri senderProfileURI = Uri.parse(senderAuthUser.getPhotoUrl().getPath());
-
-        Bitmap senderBitmap = null;
-        try {
-            senderBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), senderProfileURI);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        Uri receiverProfileURI = Uri.parse(receiverUserModel.profileURI);
-
-        Bitmap receiverBitmap = null;
-        try {
-            receiverBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), receiverProfileURI);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        senderUser = new ChatUser(senderAuthUser.getUid(), senderAuthUser.getEmail(), senderAuthUser.getDisplayName(), senderBitmap);
-        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username, receiverBitmap);
     }
 
     private void loadConversation(){

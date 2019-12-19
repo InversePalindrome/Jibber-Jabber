@@ -7,11 +7,16 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,9 +31,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.UploadTask.TaskSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -36,14 +45,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
+
 import pl.aprilapps.easyphotopicker.ChooserType;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -90,7 +97,7 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         galleryButton.setOnClickListener(this);
         cameraButton.setOnClickListener(this);
 
-        setProfileImage(user.getPhotoUrl());
+        loadProfileImage();
         usernameText.setText(user.getDisplayName());
 
         profileDialog = new EasyImage.Builder(getContext()).
@@ -131,11 +138,9 @@ public class ProfileFragment extends Fragment implements OnClickListener {
             public void onMediaFilesPicked(@NonNull MediaFile[] imageFiles, @NonNull MediaSource source) {
                 MediaFile image = imageFiles[0];
                 String filePath = image.getFile().toString();
-                Uri uri = Uri.parse(filePath);
+                Uri uri = Uri.fromFile(new File(filePath));
 
                 setProfileImage(uri);
-                updateAuthProfileURI(uri);
-                updateDatabaseProfileURI(filePath);
             }
 
             @Override
@@ -249,17 +254,9 @@ public class ProfileFragment extends Fragment implements OnClickListener {
         profileDialog.openCameraForImage(this);
     }
 
-    private void updateAuthProfileURI(Uri uri) {
-        FirebaseUser user = auth.getCurrentUser();
-        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                .setPhotoUri(uri)
-                .build();
-        user.updateProfile(profileUpdate);
-    }
-
     private void updateDatabaseProfileURI(String filePath) {
         Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("profileURI", filePath);
+        userUpdates.put(Constants.DATABASE_PROFILE_URI_NODE, filePath);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
@@ -267,20 +264,28 @@ public class ProfileFragment extends Fragment implements OnClickListener {
 
     private void updateDatabaseEmail(String newEmail) {
         Map<String, Object> userUpdates = new HashMap<>();
-        userUpdates.put("email", newEmail);
+        userUpdates.put(Constants.DATABASE_EMAIL_NODE, newEmail);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
     }
 
-    private void setProfileImage(Uri uri){
-        StorageReference profileRef = storage.getReference().child("images/" + uri.getLastPathSegment());
-        UploadTask uploadTask = profileRef.putFile(uri);
+    private void setProfileImage(Uri profileImageURI){
+        StorageReference profileRef = storage.getReference().child(Constants.STORAGE_IMAGES_NODE)
+                .child(profileImageURI.getPath());
 
+        UploadTask uploadTask = profileRef.putFile(profileImageURI);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Picasso.get().load(uri).into(profileImage);
+            public void onSuccess(TaskSnapshot taskSnapshot) {
+                profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.get().load(uri).into(profileImage);
+
+                        updateDatabaseProfileURI(profileImageURI.getPath());
+                    }
+                });
             }
         });
 
@@ -288,6 +293,32 @@ public class ProfileFragment extends Fragment implements OnClickListener {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), "Error: Profile image couldn't be uploaded", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadProfileImage(){
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+        DatabaseReference userReference = usersReference.child(user.getUid());
+
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                final String profileURI = dataSnapshot.child(Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
+
+                StorageReference profileImageReference = storage.getReference()
+                        .child(Constants.STORAGE_IMAGES_NODE).child(profileURI);
+
+                profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.get().load(uri).into(profileImage);
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
     }
