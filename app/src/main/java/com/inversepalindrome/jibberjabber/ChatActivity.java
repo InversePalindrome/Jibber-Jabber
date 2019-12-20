@@ -8,11 +8,15 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -21,17 +25,23 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class ChatActivity extends AppCompatActivity {
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
     private ChatView chatView;
     private ChatUser senderUser;
     private ChatUser receiverUser;
@@ -42,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
         chatView = findViewById(R.id.chat_chat_view);
 
         FirebaseUser senderAuthUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -53,8 +64,7 @@ public class ChatActivity extends AppCompatActivity {
         loadConversation();
 
         customizeChatView();
-
-        setTitle(receiverUser.getName());
+        customizeActionBar(receiverUserModel.username, receiverUserModel.profileURI);
     }
 
     private void customizeChatView() {
@@ -82,7 +92,7 @@ public class ChatActivity extends AppCompatActivity {
                 chatView.send(message);
                 chatView.setInputText("");
 
-                final Long tsLong = System.currentTimeMillis()/1000;
+                final Long tsLong = System.currentTimeMillis() / 1000;
                 final String timeStamp = tsLong.toString();
 
                 MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
@@ -95,7 +105,34 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void loadConversation(){
+    private void customizeActionBar(String receiverUsername, String receiverProfileURI) {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+
+        View actionBarView = layoutInflater.inflate(R.layout.action_bar_chat, null);
+        actionBar.setCustomView(actionBarView);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        CircleImageView profileImage = actionBarView.findViewById(R.id.chat_profile_image);
+
+        StorageReference profileImageReference = storage.getReference()
+                .child(Constants.STORAGE_IMAGES_NODE).child(receiverProfileURI);
+
+        profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(profileImage);
+            }
+        });
+
+        TextView usernameText = actionBarView.findViewById(R.id.chat_username_text);
+        usernameText.setText(receiverUsername);
+    }
+
+    private void loadConversation() {
         DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
         DatabaseReference chatReference = messagesReference.child(
                 MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
@@ -103,7 +140,7 @@ public class ChatActivity extends AppCompatActivity {
         chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot childDataSnapshot : dataSnapshot.getChildren()){
+                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                     final String messageText = childDataSnapshot.child(Constants.DATABASE_MESSAGE_NODE).getValue().toString();
                     final String senderID = childDataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
                     final String timeStamp = childDataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
@@ -111,7 +148,7 @@ public class ChatActivity extends AppCompatActivity {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(Long.parseLong(timeStamp) * 1000);
 
-                    if(senderUser.getId().equals(senderID)){
+                    if (senderUser.getId().equals(senderID)) {
                         Message message = new Message.Builder()
                                 .setUser(senderUser)
                                 .setRight(true)
@@ -121,8 +158,7 @@ public class ChatActivity extends AppCompatActivity {
                                 .build();
 
                         chatView.send(message);
-                    }
-                    else {
+                    } else {
                         Message message = new Message.Builder()
                                 .setUser(receiverUser)
                                 .setRight(false)
@@ -148,7 +184,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
 
-                if(!messageModel.senderID.equals(senderUser.getId())){
+                if (!messageModel.senderID.equals(senderUser.getId())) {
                     Message message = new Message.Builder()
                             .setUser(receiverUser)
                             .setRight(false)

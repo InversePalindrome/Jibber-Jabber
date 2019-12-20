@@ -7,13 +7,11 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import java.util.ArrayList;
-
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,17 +19,18 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder> {
+    private final OnClickListener listener;
     private int layout;
     private ArrayList<UserModel> userList;
-    private final OnClickListener listener;
     private FirebaseStorage storage;
 
 

@@ -11,7 +11,7 @@
         android:title="@string/messages"
         android:icon="@drawable/messages_icon"/>
     <item
-        android:id="@+id/profile_fragment"
-        android:title="@string/profile"
-        android:icon="@drawable/default_profile_icon"/>
+        android:id="@+id/settings_fragment"
+        android:title="@string/settings"
+        android:icon="@drawable/settings_icon"/>
 </menu>

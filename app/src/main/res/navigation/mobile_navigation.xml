@@ -16,7 +16,7 @@
         tools:layout="@layout/fragment_messages" />
 
     <fragment
-        android:id="@+id/profile_fragment"
+        android:id="@+id/settings_fragment"
         android:label="@string/profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_settings" />
 </navigation>

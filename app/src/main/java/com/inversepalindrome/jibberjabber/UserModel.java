@@ -28,15 +28,17 @@ public class UserModel implements Parcelable {
     public String username;
     public String email;
     public String profileURI;
+    public String status;
 
     public UserModel() {
     }
 
-    public UserModel(String uID, String username, String email, String profileURI) {
+    public UserModel(String uID, String username, String email, String profileURI, String status) {
         this.uID = uID;
         this.username = username;
         this.email = email;
         this.profileURI = profileURI;
+        this.status = status;
     }
 
     protected UserModel(Parcel in) {
@@ -44,6 +46,7 @@ public class UserModel implements Parcelable {
         this.username = in.readString();
         this.email = in.readString();
         this.profileURI = in.readString();
+        this.status = in.readString();
     }
 
     @Override
@@ -57,5 +60,6 @@ public class UserModel implements Parcelable {
         dest.writeString(this.username);
         dest.writeString(this.email);
         dest.writeString(this.profileURI);
+        dest.writeString(this.status);
     }
 }

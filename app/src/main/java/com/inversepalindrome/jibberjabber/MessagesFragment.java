@@ -55,7 +55,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
         userModelItems = new ArrayList<>();
 
-        messagesViewAdapter = new MessagesViewAdapter(R.layout.layout_message_item, userModelItems, new OnClickListener(){
+        messagesViewAdapter = new MessagesViewAdapter(R.layout.item_message, userModelItems, new OnClickListener() {
             @Override
             public void onClick(final View view) {
                 int itemPosition = messagesView.getChildLayoutPosition(view);
@@ -95,7 +95,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     }
 
     public void onStartMessage() {
-        AlertDialog.Builder startMessageDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
+        AlertDialog.Builder startMessageDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         startMessageDialogBuilder.setTitle("Start Conversation");
 
         final View startMessageLayout = getLayoutInflater().inflate(R.layout.dialog_start_message, null);
@@ -111,24 +111,24 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
                 usersReference.orderByChild(Constants.DATABASE_EMAIL_NODE).equalTo(email).
                         addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                                UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                                        UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                addConversation(senderUserID, receiverUserModel.uID);
-                                openChat(receiverUserModel);
+                                        addConversation(senderUserID, receiverUserModel.uID);
+                                        openChat(receiverUserModel);
+                                    }
+                                } else {
+                                    Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        } else {
-                            Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                            }
+                        });
             }
         });
 
@@ -149,7 +149,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startActivity(intent);
     }
 
-    private void addConversation(String senderID, String receiverID){
+    private void addConversation(String senderID, String receiverID) {
         String chatID = MessageIDCreator.getMessageID(senderID, receiverID);
 
         DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
@@ -171,11 +171,12 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-               addUserModel(dataSnapshot);
+                addUserModel(dataSnapshot);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
         });
     }
 
@@ -208,14 +209,16 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                                         }
 
                                         @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) { }
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        }
                                     });
                                 }
                             }
                         }
 
                         @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) { }
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
                     });
                 }
             }
@@ -226,16 +229,18 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         });
     }
 
-    private void addUserModel(@NonNull DataSnapshot userDataSnapshot){
+    private void addUserModel(@NonNull DataSnapshot userDataSnapshot) {
         final String receiverUsername = userDataSnapshot.child(
                 Constants.DATABASE_USERNAME_NODE).getValue().toString();
         final String receiverEmail = userDataSnapshot.child(Constants.DATABASE_EMAIL_NODE)
                 .getValue().toString();
         final String receiverProfileURI = userDataSnapshot.child(
                 Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
+        final String receiverStatus = userDataSnapshot.child(Constants.DATABASE_STATUS_NODE)
+                .getValue().toString();
 
         userModelItems.add(new UserModel(userDataSnapshot.getKey(), receiverUsername,
-                receiverEmail, receiverProfileURI));
+                receiverEmail, receiverProfileURI, receiverStatus));
 
         messagesViewAdapter.notifyDataSetChanged();
     }

@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.messages_fragment:
                         switchFragment(new MessagesFragment());
                         return true;
-                    case R.id.profile_fragment:
-                        switchFragment(new ProfileFragment());
+                    case R.id.settings_fragment:
+                        switchFragment(new SettingsFragment());
                         return true;
                 }
 

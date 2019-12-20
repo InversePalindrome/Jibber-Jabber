@@ -92,11 +92,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                             if (user != null) {
                                 StorageReference profileImageReference = storage.getReference()
-                                        .child(Constants.STORAGE_IMAGES_NODE).child("default_profile_icon.png");
+                                        .child(Constants.STORAGE_IMAGES_NODE).child(Constants.DEFAULT_PROFILE_IMAGE);
                                 profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        updateUsersDatabase(user, username, email, "default_profile_icon.png");
+                                        updateUsersDatabase(user, username, email, Constants.DEFAULT_PROFILE_IMAGE, Constants.DEFAULT_STATUS);
                                     }
                                 });
 
@@ -118,8 +118,8 @@ public class RegisterActivity extends AppCompatActivity {
         user.updateProfile(profileUpdate);
     }
 
-    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI) {
-        UserModel userModel = new UserModel(user.getUid(), username, email, profileURI);
+    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI, String status) {
+        UserModel userModel = new UserModel(user.getUid(), username, email, profileURI, status);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).setValue(userModel);

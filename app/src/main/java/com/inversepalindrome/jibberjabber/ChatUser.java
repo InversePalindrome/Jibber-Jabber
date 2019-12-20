@@ -50,7 +50,7 @@ public class ChatUser implements IChatUser {
         this.icon = bitmap;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return this.email;
     }
 }
