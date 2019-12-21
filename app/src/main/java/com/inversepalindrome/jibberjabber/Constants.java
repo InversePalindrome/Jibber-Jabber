@@ -25,7 +25,6 @@ public class Constants {
     public static final String DATABASE_STATUS_NODE = "status";
     public static final String DATABASE_PROFILE_URI_NODE = "profileURI";
     public static final String STORAGE_IMAGES_NODE = "images";
-    public static final String USER_MODEL_RECEIVER = "user_model_receiver";
 
     public static final String DEFAULT_PROFILE_IMAGE = "default_profile_icon.png";
     public static final String DEFAULT_STATUS = "Hi, I am using Jibber Jabber";

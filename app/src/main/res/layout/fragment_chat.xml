@@ -5,6 +5,11 @@
     android:id="@+id/chat_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity">
+    android:orientation="vertical"
+    tools:context=".ChatFragment">
 
+    <com.github.bassaer.chatmessageview.view.ChatView
+        android:id="@+id/chat_chat_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </FrameLayout>

@@ -145,7 +145,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
     private void openChat(UserModel receiverUserModel) {
         Intent intent = new Intent(getActivity(), ChatActivity.class);
-        intent.putExtra(Constants.USER_MODEL_RECEIVER, receiverUserModel);
+        intent.putExtra("receiver", receiverUserModel);
         startActivity(intent);
     }
 
