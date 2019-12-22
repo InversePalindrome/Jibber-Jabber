@@ -245,13 +245,22 @@ public class ChatFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ProfileFragment profileFragment = new ProfileFragment();
 
+        setDefaultActionBar();
+
         Bundle bundle = new Bundle();
         bundle.putParcelable("user", receiverUserModel);
 
         profileFragment.setArguments(bundle);
 
-        transaction.add(R.id.chat_layout, profileFragment);
+        transaction.replace(R.id.chat_layout, profileFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+        transaction.addToBackStack(null);
+    }
+
+    private void setDefaultActionBar() {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayShowCustomEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(true);
     }
 }

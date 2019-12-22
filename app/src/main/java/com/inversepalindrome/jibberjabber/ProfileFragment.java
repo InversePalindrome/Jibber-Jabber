@@ -48,7 +48,7 @@ public class ProfileFragment extends Fragment {
         storage = FirebaseStorage.getInstance();
 
         profileImage = view.findViewById(R.id.profile_profile_image);
-        usernameText = view.findViewById(R.id.profile_status_text);
+        usernameText = view.findViewById(R.id.profile_username_text);
         statusText = view.findViewById(R.id.profile_status_text);
         emailText = view.findViewById(R.id.profile_email_text);
 

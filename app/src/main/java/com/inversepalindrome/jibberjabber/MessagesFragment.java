@@ -32,6 +32,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -76,6 +77,11 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                 linearLayoutManager.getOrientation());
 
         messagesView.addItemDecoration(dividerItemDecoration);
+
+        MessageItemCallback messageItemCallback = new MessageItemCallback();
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(messageItemCallback);
+        itemTouchHelper.attachToRecyclerView(messagesView);
 
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);
