@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2019 Inverse Palindrome
-Jibber Jabber - SplashActivity.java
+Jibber Jabber - UserItemCallback.java
 https://inversepalindrome.com/
 */
 
@@ -8,6 +8,7 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.ItemTouchHelper.Callback;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,12 +25,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE;
 
 
-public class MessageItemCallback extends Callback {
+public class UserItemCallback extends Callback {
 
     private static final float buttonWidth = 300;
     private boolean swipeBack = false;
+    private UserItemActions userItemActions = null;
     private ButtonsState buttonShowedState = ButtonsState.GONE;
     private RectF buttonInstance = null;
+    private Context context;
+
+    public UserItemCallback(Context context, UserItemActions userItemActions) {
+        this.context = context;
+        this.userItemActions = userItemActions;
+    }
 
     @Override
     public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
@@ -117,7 +126,7 @@ public class MessageItemCallback extends Callback {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    MessageItemCallback.super.onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive);
+                    UserItemCallback.super.onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive);
                     recyclerView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
@@ -126,7 +135,15 @@ public class MessageItemCallback extends Callback {
                     });
                     setItemsClickable(recyclerView, true);
                     swipeBack = false;
+
+                    if (userItemActions != null && buttonInstance != null && buttonInstance.contains(event.getX(), event.getY())) {
+                        if (buttonShowedState == ButtonsState.VISIBLE) {
+                            userItemActions.onDeleteClicked(viewHolder.getAdapterPosition());
+                        }
+                    }
+
                     buttonShowedState = ButtonsState.GONE;
+
                 }
                 return false;
             }
@@ -141,7 +158,7 @@ public class MessageItemCallback extends Callback {
         Paint p = new Paint();
 
         RectF rightButton = new RectF(itemView.getRight() - buttonWidthWithoutPadding, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        p.setColor(Color.RED);
+        p.setColor(Color.BLACK);
         c.drawRoundRect(rightButton, corners, corners, p);
         drawText("DELETE", c, rightButton, p);
 
@@ -153,13 +170,14 @@ public class MessageItemCallback extends Callback {
     }
 
     private void drawText(String text, Canvas c, RectF button, Paint p) {
-        float textSize = 60;
+        final float textSize = 45;
         p.setColor(Color.WHITE);
         p.setAntiAlias(true);
         p.setTextSize(textSize);
+        p.setTypeface(ResourcesCompat.getFont(context, R.font.baloo));
 
         float textWidth = p.measureText(text);
-        c.drawText(text, button.centerX()-(textWidth/2), button.centerY()+(textSize/2), p);
+        c.drawText(text, button.centerX() - (textWidth / 2), button.centerY() + (textSize / 2), p);
     }
 
     private void setItemsClickable(RecyclerView recyclerView, boolean isClickable) {

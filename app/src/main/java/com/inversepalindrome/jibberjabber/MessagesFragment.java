@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,15 +35,15 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 
 public class MessagesFragment extends Fragment implements OnClickListener {
     private String senderUserID;
     private FirebaseDatabase database;
     private ArrayList<UserModel> userModelItems;
-    private MessagesViewAdapter messagesViewAdapter;
-    private RecyclerView messagesView;
+    private UserViewAdapter userViewAdapter;
+    private EmptyRecyclerView messagesView;
+    private TextView emptyStartMessageText;
     private FloatingActionButton startMessageButton;
 
     @Override
@@ -56,7 +57,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
         userModelItems = new ArrayList<>();
 
-        messagesViewAdapter = new MessagesViewAdapter(R.layout.item_message, userModelItems, new OnClickListener() {
+        userViewAdapter = new UserViewAdapter(R.layout.item_message, userModelItems, new OnClickListener() {
             @Override
             public void onClick(final View view) {
                 int itemPosition = messagesView.getChildLayoutPosition(view);
@@ -69,22 +70,35 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         messagesView = view.findViewById(R.id.messages_recycler_view);
+        startMessageButton = view.findViewById(R.id.messages_start_message_button);
+        emptyStartMessageText = view.findViewById(R.id.messages_empty_start_message_text);
+
         messagesView.setLayoutManager(linearLayoutManager);
         messagesView.setItemAnimator(new DefaultItemAnimator());
-        messagesView.setAdapter(messagesViewAdapter);
+        messagesView.setAdapter(userViewAdapter);
+        messagesView.setEmptyView(emptyStartMessageText);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(messagesView.getContext(),
                 linearLayoutManager.getOrientation());
 
         messagesView.addItemDecoration(dividerItemDecoration);
 
-        MessageItemCallback messageItemCallback = new MessageItemCallback();
+        UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
+            @Override
+            public void onDeleteClicked(int position) {
+                removeConversation(userModelItems.get(position).uID);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(messageItemCallback);
+                userModelItems.remove(position);
+                userViewAdapter.notifyItemRemoved(position);
+                userViewAdapter.notifyItemRangeChanged(position, userViewAdapter.getItemCount());
+            }
+        });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
         itemTouchHelper.attachToRecyclerView(messagesView);
 
-        startMessageButton = view.findViewById(R.id.messages_start_message_button);
         startMessageButton.setOnClickListener(this);
+        emptyStartMessageText.setOnClickListener(this);
 
         loadConversations();
 
@@ -95,6 +109,9 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.messages_start_message_button:
+                onStartMessage();
+                break;
+            case R.id.messages_empty_start_message_text:
                 onStartMessage();
                 break;
         }
@@ -123,7 +140,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                                     for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                         UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                        addConversation(senderUserID, receiverUserModel.uID);
+                                        addConversation(receiverUserModel.uID);
                                         openChat(receiverUserModel);
                                     }
                                 } else {
@@ -155,18 +172,19 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         startActivity(intent);
     }
 
-    private void addConversation(String senderID, String receiverID) {
-        String chatID = MessageIDCreator.getMessageID(senderID, receiverID);
+    private void addConversation(String receiverID) {
+        String chatID = MessageIDCreator.getMessageID(senderUserID, receiverID);
 
         DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
         DatabaseReference chatReference = chatsReference.child(chatID);
+
         DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
-        membersReference.child(senderID).setValue(true);
+        membersReference.child(senderUserID).setValue(true);
         membersReference.child(receiverID).setValue(true);
 
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
 
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderUserID);
         senderChatsReference.child(chatID).setValue(true);
 
         DatabaseReference receiverChatsReference = usersChatsReference.child(receiverID);
@@ -184,6 +202,15 @@ public class MessagesFragment extends Fragment implements OnClickListener {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    private void removeConversation(String receiverID) {
+        String chatID = MessageIDCreator.getMessageID(senderUserID, receiverID);
+
+        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderUserID);
+        senderChatsReference.child(chatID).removeValue();
     }
 
     private void loadConversations() {
@@ -248,6 +275,6 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         userModelItems.add(new UserModel(userDataSnapshot.getKey(), receiverUsername,
                 receiverEmail, receiverProfileURI, receiverStatus));
 
-        messagesViewAdapter.notifyDataSetChanged();
+        userViewAdapter.notifyDataSetChanged();
     }
 }

@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2019 Inverse Palindrome
-Jibber Jabber - MessagesViewAdapter.java
+Jibber Jabber - UserViewAdapter.java
 https://inversepalindrome.com/
 */
 
@@ -27,14 +27,14 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class MessagesViewAdapter extends Adapter<MessagesViewAdapter.ViewHolder> {
+public class UserViewAdapter extends Adapter<UserViewAdapter.ViewHolder> {
     private final OnClickListener listener;
     private int layout;
     private ArrayList<UserModel> userList;
     private FirebaseStorage storage;
 
 
-    public MessagesViewAdapter(int layout, ArrayList<UserModel> userList, OnClickListener listener) {
+    public UserViewAdapter(int layout, ArrayList<UserModel> userList, OnClickListener listener) {
         this.layout = layout;
         this.userList = userList;
         this.listener = listener;

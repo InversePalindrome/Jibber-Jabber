@@ -145,6 +145,9 @@ public class SettingsFragment extends Fragment implements OnClickListener {
             public void onMediaFilesPicked(@NonNull MediaFile[] imageFiles, @NonNull MediaSource source) {
                 MediaFile image = imageFiles[0];
                 String filePath = image.getFile().toString();
+
+                RotateImage.handleImageOrientation(filePath);
+
                 Uri uri = Uri.fromFile(new File(filePath));
 
                 setProfileImage(uri);
