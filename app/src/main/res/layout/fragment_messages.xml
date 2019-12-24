@@ -8,7 +8,7 @@
     tools:context=".MessagesFragment">
 
     <com.inversepalindrome.jibberjabber.EmptyRecyclerView
-        android:id="@+id/messages_recycler_view"
+        android:id="@+id/messages_user_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="visible"

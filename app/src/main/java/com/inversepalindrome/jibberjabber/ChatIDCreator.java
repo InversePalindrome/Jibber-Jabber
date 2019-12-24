@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2019 Inverse Palindrome
-Jibber Jabber - MessageIDCreator.java
+Jibber Jabber - ChatIDCreator.java
 https://inversepalindrome.com/
 */
 
@@ -8,8 +8,8 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 
-public class MessageIDCreator {
-    public static String getMessageID(String uID1, String uID2) {
+public class ChatIDCreator {
+    public static String getChatID(String uID1, String uID2) {
         if (uID1.compareTo(uID2) < 0) {
             return uID1 + uID2;
         }

@@ -34,4 +34,8 @@
     <string name="email2">Email:</string>
     <string name="start_message">Start Message</string>
     <string name="empty_messages">No messages found. <u>Start a conversation!</u></string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="post">Post</string>
+    <string name="cancel">Cancel</string>
 </resources>

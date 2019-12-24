@@ -74,7 +74,7 @@ public class SettingsFragment extends Fragment implements OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        final View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -164,13 +164,13 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         AlertDialog.Builder statusDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         statusDialogBuilder.setTitle("Change Status");
 
-        final View statusLayout = getLayoutInflater().inflate(R.layout.dialog_change_status, null);
-        statusDialogBuilder.setView(statusLayout);
+        final View statusView = getLayoutInflater().inflate(R.layout.dialog_change_status, null);
+        statusDialogBuilder.setView(statusView);
 
         statusDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final EditText statusEntry = statusLayout.findViewById(R.id.change_status_entry);
+                final EditText statusEntry = statusView.findViewById(R.id.change_status_entry);
                 final String newStatus = statusEntry.getText().toString();
 
                 if (TextUtils.isEmpty(newStatus)) {
@@ -198,13 +198,13 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
-        final View emailLayout = getLayoutInflater().inflate(R.layout.dialog_change_email, null);
-        emailDialogBuilder.setView(emailLayout);
+        final View emailView = getLayoutInflater().inflate(R.layout.dialog_change_email, null);
+        emailDialogBuilder.setView(emailView);
 
         emailDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final EditText emailEntry = emailLayout.findViewById(R.id.change_email_entry);
+                final EditText emailEntry = emailView.findViewById(R.id.change_email_entry);
                 final String newEmail = emailEntry.getText().toString();
 
                 if (TextUtils.isEmpty(newEmail)) {
@@ -241,13 +241,13 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
-        final View passwordLayout = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
-        passwordDialogBuilder.setView(passwordLayout);
+        final View passwordView = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
+        passwordDialogBuilder.setView(passwordView);
 
         passwordDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final EditText passwordEntry = passwordLayout.findViewById(R.id.change_password_entry);
+                final EditText passwordEntry = passwordView.findViewById(R.id.change_password_entry);
                 final String newPassword = passwordEntry.getText().toString();
 
                 if (TextUtils.isEmpty(newPassword)) {

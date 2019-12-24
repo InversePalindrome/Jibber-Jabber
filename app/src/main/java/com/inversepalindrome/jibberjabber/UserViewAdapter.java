@@ -54,8 +54,8 @@ public class UserViewAdapter extends Adapter<UserViewAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TextView usernameText = holder.usernameText;
-        CircleImageView profileImage = holder.profilePicture;
+        final TextView usernameText = holder.usernameText;
+        final CircleImageView profileImage = holder.profilePicture;
 
         UserModel userModel = userList.get(position);
 
@@ -78,14 +78,14 @@ public class UserViewAdapter extends Adapter<UserViewAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public TextView usernameText;
-        public CircleImageView profilePicture;
+        private TextView usernameText;
+        private CircleImageView profilePicture;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            usernameText = itemView.findViewById(R.id.message_item_profile_username);
-            profilePicture = itemView.findViewById(R.id.message_item_profile_image);
+            usernameText = itemView.findViewById(R.id.user_item_profile_username);
+            profilePicture = itemView.findViewById(R.id.user_item_profile_image);
         }
 
         @Override

@@ -113,7 +113,7 @@ public class ChatFragment extends Fragment {
 
                 DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
                 DatabaseReference chatReference = messagesReference.child(
-                        MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
+                        ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
                 chatReference.push().setValue(messageModel);
             }
         });
@@ -161,7 +161,7 @@ public class ChatFragment extends Fragment {
     private void loadConversation() {
         DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
         DatabaseReference chatReference = messagesReference.child(
-                MessageIDCreator.getMessageID(senderUser.getId(), receiverUser.getId()));
+                ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
 
         chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

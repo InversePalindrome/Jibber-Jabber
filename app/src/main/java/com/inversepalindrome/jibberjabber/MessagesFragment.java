@@ -37,30 +37,30 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
-public class MessagesFragment extends Fragment implements OnClickListener {
-    private String senderUserID;
+public class MessagesFragment extends Fragment {
+    private String senderID;
     private FirebaseDatabase database;
     private ArrayList<UserModel> userModelItems;
     private UserViewAdapter userViewAdapter;
-    private EmptyRecyclerView messagesView;
+    private EmptyRecyclerView userView;
     private TextView emptyStartMessageText;
     private FloatingActionButton startMessageButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_messages, container, false);
+        final View view = inflater.inflate(R.layout.fragment_messages, container, false);
 
-        senderUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         database = FirebaseDatabase.getInstance();
 
         userModelItems = new ArrayList<>();
 
-        userViewAdapter = new UserViewAdapter(R.layout.item_message, userModelItems, new OnClickListener() {
+        userViewAdapter = new UserViewAdapter(R.layout.item_user, userModelItems, new OnClickListener() {
             @Override
             public void onClick(final View view) {
-                int itemPosition = messagesView.getChildLayoutPosition(view);
+                int itemPosition = userView.getChildLayoutPosition(view);
                 UserModel userModelItem = userModelItems.get(itemPosition);
 
                 openChat(userModelItem);
@@ -69,19 +69,19 @@ public class MessagesFragment extends Fragment implements OnClickListener {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
-        messagesView = view.findViewById(R.id.messages_recycler_view);
+        userView = view.findViewById(R.id.messages_user_view);
         startMessageButton = view.findViewById(R.id.messages_start_message_button);
         emptyStartMessageText = view.findViewById(R.id.messages_empty_start_message_text);
 
-        messagesView.setLayoutManager(linearLayoutManager);
-        messagesView.setItemAnimator(new DefaultItemAnimator());
-        messagesView.setAdapter(userViewAdapter);
-        messagesView.setEmptyView(emptyStartMessageText);
+        userView.setLayoutManager(linearLayoutManager);
+        userView.setItemAnimator(new DefaultItemAnimator());
+        userView.setAdapter(userViewAdapter);
+        userView.setEmptyView(emptyStartMessageText);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(messagesView.getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(userView.getContext(),
                 linearLayoutManager.getOrientation());
 
-        messagesView.addItemDecoration(dividerItemDecoration);
+        userView.addItemDecoration(dividerItemDecoration);
 
         UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
             @Override
@@ -95,39 +95,37 @@ public class MessagesFragment extends Fragment implements OnClickListener {
         });
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
-        itemTouchHelper.attachToRecyclerView(messagesView);
+        itemTouchHelper.attachToRecyclerView(userView);
 
-        startMessageButton.setOnClickListener(this);
-        emptyStartMessageText.setOnClickListener(this);
+        startMessageButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onStartMessage();
+            }
+        });
+        emptyStartMessageText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onStartMessage();
+            }
+        });
 
         loadConversations();
 
         return view;
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.messages_start_message_button:
-                onStartMessage();
-                break;
-            case R.id.messages_empty_start_message_text:
-                onStartMessage();
-                break;
-        }
-    }
-
     public void onStartMessage() {
         AlertDialog.Builder startMessageDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         startMessageDialogBuilder.setTitle("Start Conversation");
 
-        final View startMessageLayout = getLayoutInflater().inflate(R.layout.dialog_start_message, null);
-        startMessageDialogBuilder.setView(startMessageLayout);
+        final View startMessageView = getLayoutInflater().inflate(R.layout.dialog_start_message, null);
+        startMessageDialogBuilder.setView(startMessageView);
 
         startMessageDialogBuilder.setPositiveButton("Open Chat", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final EditText emailEntry = startMessageLayout.findViewById(R.id.start_message_email_entry);
+                final EditText emailEntry = startMessageView.findViewById(R.id.start_message_email_entry);
                 final String email = emailEntry.getText().toString().toLowerCase();
 
                 DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
@@ -173,18 +171,18 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     }
 
     private void addConversation(String receiverID) {
-        String chatID = MessageIDCreator.getMessageID(senderUserID, receiverID);
+        String chatID = ChatIDCreator.getChatID(senderID, receiverID);
 
         DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
         DatabaseReference chatReference = chatsReference.child(chatID);
 
         DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
-        membersReference.child(senderUserID).setValue(true);
+        membersReference.child(senderID).setValue(true);
         membersReference.child(receiverID).setValue(true);
 
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
 
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderUserID);
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
         senderChatsReference.child(chatID).setValue(true);
 
         DatabaseReference receiverChatsReference = usersChatsReference.child(receiverID);
@@ -205,18 +203,18 @@ public class MessagesFragment extends Fragment implements OnClickListener {
     }
 
     private void removeConversation(String receiverID) {
-        String chatID = MessageIDCreator.getMessageID(senderUserID, receiverID);
+        String chatID = ChatIDCreator.getChatID(senderID, receiverID);
 
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
 
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderUserID);
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
         senderChatsReference.child(chatID).removeValue();
     }
 
     private void loadConversations() {
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
 
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderUserID);
+        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
         senderChatsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -231,7 +229,7 @@ public class MessagesFragment extends Fragment implements OnClickListener {
                             for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
                                 String memberID = memberSnapshot.getKey();
 
-                                if (!memberID.equals(senderUserID)) {
+                                if (!memberID.equals(senderID)) {
                                     DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
                                     DatabaseReference receiverReference = usersReference.child(memberID);
 
