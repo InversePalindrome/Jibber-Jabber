@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                         switchFragment(new ForumFragment());
                         return true;
                     case R.id.messages_fragment:
-                        switchFragment(new MessagesFragment());
+                        switchFragment(new ChatsFragment());
                         return true;
                     case R.id.settings_fragment:
                         switchFragment(new SettingsFragment());

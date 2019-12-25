@@ -42,8 +42,8 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final TextView titleText = holder.title;
-        final TextView bodyText = holder.body;
+        final TextView titleText = holder.titleText;
+        final TextView bodyText = holder.bodyText;
 
         TopicModel topicModel = topicList.get(position);
 
@@ -57,14 +57,14 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView title;
-        private TextView body;
+        private TextView titleText;
+        private TextView bodyText;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            title = itemView.findViewById(R.id.topic_title_text);
-            body = itemView.findViewById(R.id.topic_body_text);
+            titleText = itemView.findViewById(R.id.topic_title_text);
+            bodyText = itemView.findViewById(R.id.topic_body_text);
         }
 
         @Override

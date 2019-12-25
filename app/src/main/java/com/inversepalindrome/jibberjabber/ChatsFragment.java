@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2019 Inverse Palindrome
-Jibber Jabber - MessagesFragment.java
+Jibber Jabber - ChatsFragment.java
 https://inversepalindrome.com/
 */
 
@@ -37,19 +37,19 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
-public class MessagesFragment extends Fragment {
+public class ChatsFragment extends Fragment {
     private String senderID;
     private FirebaseDatabase database;
     private ArrayList<UserModel> userModelItems;
     private UserViewAdapter userViewAdapter;
     private EmptyRecyclerView userView;
-    private TextView emptyStartMessageText;
-    private FloatingActionButton startMessageButton;
+    private TextView emptyStartChatText;
+    private FloatingActionButton startChatButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_messages, container, false);
+        final View view = inflater.inflate(R.layout.fragment_chats, container, false);
 
         senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -63,20 +63,20 @@ public class MessagesFragment extends Fragment {
                 int itemPosition = userView.getChildLayoutPosition(view);
                 UserModel userModelItem = userModelItems.get(itemPosition);
 
-                openChat(userModelItem);
+                openChatActivity(userModelItem);
             }
         });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
-        userView = view.findViewById(R.id.messages_user_view);
-        startMessageButton = view.findViewById(R.id.messages_start_message_button);
-        emptyStartMessageText = view.findViewById(R.id.messages_empty_start_message_text);
+        userView = view.findViewById(R.id.chats_user_view);
+        startChatButton = view.findViewById(R.id.chats_start_chat_button);
+        emptyStartChatText = view.findViewById(R.id.chats_empty_start_chat_text);
 
         userView.setLayoutManager(linearLayoutManager);
         userView.setItemAnimator(new DefaultItemAnimator());
         userView.setAdapter(userViewAdapter);
-        userView.setEmptyView(emptyStartMessageText);
+        userView.setEmptyView(emptyStartChatText);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(userView.getContext(),
                 linearLayoutManager.getOrientation());
@@ -86,7 +86,7 @@ public class MessagesFragment extends Fragment {
         UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
             @Override
             public void onDeleteClicked(int position) {
-                removeConversation(userModelItems.get(position).uID);
+                removeChatFromDatabase(userModelItems.get(position).uID);
 
                 userModelItems.remove(position);
                 userViewAdapter.notifyItemRemoved(position);
@@ -97,35 +97,35 @@ public class MessagesFragment extends Fragment {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
         itemTouchHelper.attachToRecyclerView(userView);
 
-        startMessageButton.setOnClickListener(new OnClickListener() {
+        startChatButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStartMessage();
+                openStartChatDialog();
             }
         });
-        emptyStartMessageText.setOnClickListener(new OnClickListener() {
+        emptyStartChatText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStartMessage();
+                openStartChatDialog();
             }
         });
 
-        loadConversations();
+        loadChatFromDatabase();
 
         return view;
     }
 
-    public void onStartMessage() {
-        AlertDialog.Builder startMessageDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
-        startMessageDialogBuilder.setTitle("Start Conversation");
+    public void openStartChatDialog() {
+        AlertDialog.Builder startChatDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
+        startChatDialogBuilder.setTitle("Start Chat");
 
-        final View startMessageView = getLayoutInflater().inflate(R.layout.dialog_start_message, null);
-        startMessageDialogBuilder.setView(startMessageView);
+        final View startChatView = getLayoutInflater().inflate(R.layout.dialog_start_chat, null);
+        startChatDialogBuilder.setView(startChatView);
 
-        startMessageDialogBuilder.setPositiveButton("Open Chat", new DialogInterface.OnClickListener() {
+        startChatDialogBuilder.setPositiveButton("Open Chat", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final EditText emailEntry = startMessageView.findViewById(R.id.start_message_email_entry);
+                final EditText emailEntry = startChatView.findViewById(R.id.start_chat_email_entry);
                 final String email = emailEntry.getText().toString().toLowerCase();
 
                 DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
@@ -138,8 +138,8 @@ public class MessagesFragment extends Fragment {
                                     for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                         UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                        addConversation(receiverUserModel.uID);
-                                        openChat(receiverUserModel);
+                                        addChatToDatabase(receiverUserModel.uID);
+                                        openChatActivity(receiverUserModel);
                                     }
                                 } else {
                                     Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
@@ -153,24 +153,24 @@ public class MessagesFragment extends Fragment {
             }
         });
 
-        startMessageDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        startChatDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
 
-        AlertDialog startMessageDialog = startMessageDialogBuilder.create();
-        startMessageDialog.show();
+        AlertDialog startChatDialog = startChatDialogBuilder.create();
+        startChatDialog.show();
     }
 
-    private void openChat(UserModel receiverUserModel) {
+    private void openChatActivity(UserModel receiverUserModel) {
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra("receiver", receiverUserModel);
         startActivity(intent);
     }
 
-    private void addConversation(String receiverID) {
+    private void addChatToDatabase(String receiverID) {
         String chatID = ChatIDCreator.getChatID(senderID, receiverID);
 
         DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
@@ -193,7 +193,7 @@ public class MessagesFragment extends Fragment {
         receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                addUserModel(dataSnapshot);
+                addUserModelToView(dataSnapshot);
             }
 
             @Override
@@ -202,7 +202,7 @@ public class MessagesFragment extends Fragment {
         });
     }
 
-    private void removeConversation(String receiverID) {
+    private void removeChatFromDatabase(String receiverID) {
         String chatID = ChatIDCreator.getChatID(senderID, receiverID);
 
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
@@ -211,7 +211,23 @@ public class MessagesFragment extends Fragment {
         senderChatsReference.child(chatID).removeValue();
     }
 
-    private void loadConversations() {
+    private void addUserModelToView(@NonNull DataSnapshot userDataSnapshot) {
+        final String receiverUsername = userDataSnapshot.child(
+                Constants.DATABASE_USERNAME_NODE).getValue().toString();
+        final String receiverEmail = userDataSnapshot.child(Constants.DATABASE_EMAIL_NODE)
+                .getValue().toString();
+        final String receiverProfileURI = userDataSnapshot.child(
+                Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
+        final String receiverStatus = userDataSnapshot.child(Constants.DATABASE_STATUS_NODE)
+                .getValue().toString();
+
+        userModelItems.add(new UserModel(userDataSnapshot.getKey(), receiverUsername,
+                receiverEmail, receiverProfileURI, receiverStatus));
+
+        userViewAdapter.notifyDataSetChanged();
+    }
+
+    private void loadChatFromDatabase() {
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
 
         DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
@@ -236,7 +252,7 @@ public class MessagesFragment extends Fragment {
                                     receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            addUserModel(dataSnapshot);
+                                            addUserModelToView(dataSnapshot);
                                         }
 
                                         @Override
@@ -258,21 +274,5 @@ public class MessagesFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-    }
-
-    private void addUserModel(@NonNull DataSnapshot userDataSnapshot) {
-        final String receiverUsername = userDataSnapshot.child(
-                Constants.DATABASE_USERNAME_NODE).getValue().toString();
-        final String receiverEmail = userDataSnapshot.child(Constants.DATABASE_EMAIL_NODE)
-                .getValue().toString();
-        final String receiverProfileURI = userDataSnapshot.child(
-                Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
-        final String receiverStatus = userDataSnapshot.child(Constants.DATABASE_STATUS_NODE)
-                .getValue().toString();
-
-        userModelItems.add(new UserModel(userDataSnapshot.getKey(), receiverUsername,
-                receiverEmail, receiverProfileURI, receiverStatus));
-
-        userViewAdapter.notifyDataSetChanged();
     }
 }

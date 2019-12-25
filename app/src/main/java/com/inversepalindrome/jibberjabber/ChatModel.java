@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2019 Inverse Palindrome
-Jibber Jabber - MessageModel.java
+Jibber Jabber - ChatModel.java
 https://inversepalindrome.com/
 */
 
@@ -8,16 +8,16 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 
-public class MessageModel {
+public class ChatModel {
     public String senderID;
     public String receiverID;
     public String message;
     public String timeStamp;
 
-    public MessageModel() {
+    public ChatModel() {
     }
 
-    public MessageModel(String senderID, String receiverID, String message, String timeStamp) {
+    public ChatModel(String senderID, String receiverID, String message, String timeStamp) {
         this.senderID = senderID;
         this.receiverID = receiverID;
         this.message = message;

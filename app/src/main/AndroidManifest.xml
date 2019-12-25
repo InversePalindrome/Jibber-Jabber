@@ -18,7 +18,8 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TopicActivity"></activity>
+        <activity android:name=".TopicActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ChatActivity"
             android:screenOrientation="portrait" />

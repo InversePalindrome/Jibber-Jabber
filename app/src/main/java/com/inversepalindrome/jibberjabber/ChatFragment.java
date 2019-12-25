@@ -73,7 +73,7 @@ public class ChatFragment extends Fragment {
         senderUser = new ChatUser(senderAuthUser.getUid(), senderAuthUser.getEmail(), senderAuthUser.getDisplayName());
         receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
 
-        loadConversation();
+        loadChatFromDatabase();
 
         customizeChatView();
         customizeActionBar(receiverUserModel.username, receiverUserModel.profileURI);
@@ -109,12 +109,12 @@ public class ChatFragment extends Fragment {
                 final Long tsLong = System.currentTimeMillis() / 1000;
                 final String timeStamp = tsLong.toString();
 
-                MessageModel messageModel = new MessageModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
+                ChatModel chatModel = new ChatModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
 
                 DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
                 DatabaseReference chatReference = messagesReference.child(
                         ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
-                chatReference.push().setValue(messageModel);
+                chatReference.push().setValue(chatModel);
             }
         });
     }
@@ -158,7 +158,31 @@ public class ChatFragment extends Fragment {
         });
     }
 
-    private void loadConversation() {
+    private void openProfileFragment() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        ProfileFragment profileFragment = new ProfileFragment();
+
+        setDefaultActionBar();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("user", receiverUserModel);
+
+        profileFragment.setArguments(bundle);
+
+        transaction.replace(R.id.chat_layout, profileFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+        transaction.addToBackStack(null);
+    }
+
+    private void setDefaultActionBar() {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayShowCustomEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(true);
+    }
+
+    private void loadChatFromDatabase() {
         DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
         DatabaseReference chatReference = messagesReference.child(
                 ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
@@ -208,13 +232,13 @@ public class ChatFragment extends Fragment {
         chatReference.orderByKey().startAt(startKey).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
+                ChatModel chatModel = dataSnapshot.getValue(ChatModel.class);
 
-                if (!messageModel.senderID.equals(senderUser.getId())) {
+                if (!chatModel.senderID.equals(senderUser.getId())) {
                     Message message = new Message.Builder()
                             .setUser(receiverUser)
                             .setRight(false)
-                            .setText(messageModel.message)
+                            .setText(chatModel.message)
                             .hideIcon(true)
                             .build();
 
@@ -238,29 +262,5 @@ public class ChatFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-    }
-
-    private void openProfileFragment() {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ProfileFragment profileFragment = new ProfileFragment();
-
-        setDefaultActionBar();
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("user", receiverUserModel);
-
-        profileFragment.setArguments(bundle);
-
-        transaction.replace(R.id.chat_layout, profileFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-        transaction.addToBackStack(null);
-    }
-
-    private void setDefaultActionBar() {
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(true);
     }
 }

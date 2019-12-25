@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/messages_layout"
+    android:id="@+id/chats_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MessagesFragment">
+    tools:context=".ChatsFragment">
 
     <com.inversepalindrome.jibberjabber.EmptyRecyclerView
-        android:id="@+id/messages_user_view"
+        android:id="@+id/chats_user_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="visible"
@@ -20,7 +20,7 @@
     </com.inversepalindrome.jibberjabber.EmptyRecyclerView>
 
     <TextView
-        android:id="@+id/messages_empty_start_message_text"
+        android:id="@+id/chats_empty_start_chat_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="265dp"
@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/messages_start_message_button"
+        android:id="@+id/chats_start_chat_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="35dp"

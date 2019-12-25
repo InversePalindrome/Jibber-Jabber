@@ -101,8 +101,8 @@ public class SettingsFragment extends Fragment implements OnClickListener {
 
         usernameText.setText(user.getDisplayName());
 
-        loadStatus();
-        loadProfileImage();
+        loadStatusFromDatabase();
+        loadProfileImageFromStorage();
 
         profileDialog = new EasyImage.Builder(getContext()).
                 setCopyImagesToPublicGalleryFolder(false).
@@ -116,19 +116,19 @@ public class SettingsFragment extends Fragment implements OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.settings_change_email_button:
-                onChangeEmail();
+                openChangeEmailDialog();
                 break;
             case R.id.settings_change_password_button:
-                onChangePassword();
+                openChangePasswordDialog();
                 break;
             case R.id.settings_gallery_button:
-                onOpenGallery();
+                openGallery();
                 break;
             case R.id.settings_camera_button:
-                onOpenCamera();
+                openCamera();
                 break;
             case R.id.settings_edit_status_button:
-                onChangeStatus();
+                openChangeStatusDialog();
                 break;
             case R.id.settings_log_out_button:
                 onLogOut();
@@ -160,7 +160,7 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         });
     }
 
-    private void onChangeStatus() {
+    private void openChangeStatusDialog() {
         AlertDialog.Builder statusDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         statusDialogBuilder.setTitle("Change Status");
 
@@ -194,7 +194,7 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         statusDialog.show();
     }
 
-    private void onChangeEmail() {
+    private void openChangeEmailDialog() {
         AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
@@ -237,7 +237,7 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         emailDialog.show();
     }
 
-    private void onChangePassword() {
+    private void openChangePasswordDialog() {
         AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
@@ -290,11 +290,11 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         activity.finish();
     }
 
-    private void onOpenGallery() {
+    private void openGallery() {
         profileDialog.openGallery(this);
     }
 
-    private void onOpenCamera() {
+    private void openCamera() {
         profileDialog.openCameraForImage(this);
     }
 
@@ -320,23 +320,6 @@ public class SettingsFragment extends Fragment implements OnClickListener {
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).updateChildren(userUpdates);
-    }
-
-    private void loadStatus() {
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-        DatabaseReference userReference = usersReference.child(user.getUid());
-
-        userReference.child(Constants.DATABASE_STATUS_NODE).
-                addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        statusText.setText(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
     }
 
     private void setProfileImage(Uri profileImageURI) {
@@ -366,7 +349,24 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         });
     }
 
-    private void loadProfileImage() {
+    private void loadStatusFromDatabase() {
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+        DatabaseReference userReference = usersReference.child(user.getUid());
+
+        userReference.child(Constants.DATABASE_STATUS_NODE).
+                addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        statusText.setText(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    private void loadProfileImageFromStorage() {
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         DatabaseReference userReference = usersReference.child(user.getUid());
 

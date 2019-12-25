@@ -22,12 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHolder> {
     private final View.OnClickListener listener;
     private int layout;
-    private ArrayList<TopicModel> topicList;
+    private ArrayList<PostModel> postList;
 
 
-    public PostViewAdapter(int layout, ArrayList<TopicModel> topicList, View.OnClickListener listener) {
+    public PostViewAdapter(int layout, ArrayList<PostModel> postList, View.OnClickListener listener) {
         this.layout = layout;
-        this.topicList = topicList;
+        this.postList = postList;
         this.listener = listener;
     }
 
@@ -43,12 +43,16 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull PostViewAdapter.ViewHolder holder, int position) {
+        final TextView bodyText = holder.bodyText;
 
+        PostModel postModel = postList.get(position);
+
+        bodyText.setText(postModel.body);
     }
 
     @Override
     public int getItemCount() {
-        return topicList == null ? 0 : topicList.size();
+        return postList == null ? 0 : postList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -58,12 +62,11 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
         public ViewHolder(View itemView) {
             super(itemView);
 
-
+            bodyText = itemView.findViewById(R.id.post_body_text);
         }
 
         @Override
         public void onClick(View view) {
-
         }
     }
 }

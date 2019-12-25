@@ -7,12 +7,12 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,7 +56,10 @@ public class ForumFragment extends Fragment {
         topicViewAdapter = new TopicViewAdapter(R.layout.item_topic, topicModelItems, new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
+                int itemPosition = topicView.getChildLayoutPosition(view);
+                TopicModel topicModelItem = topicModelItems.get(itemPosition);
 
+                openTopicActivity(topicModelItem);
             }
         });
 
@@ -77,31 +80,25 @@ public class ForumFragment extends Fragment {
         startTopicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStartTopic();
+                openStartTopicDialog();
             }
         });
 
-        loadTopics();
+        loadTopicsFromDatabase();
 
         return view;
     }
 
-    private void onStartTopic() {
+    private void openStartTopicDialog() {
         AlertDialog.Builder startTopicDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         startTopicDialogBuilder.setTitle("Start Topic");
 
         final View startTopicView = getLayoutInflater().inflate(R.layout.dialog_start_topic, null);
         startTopicDialogBuilder.setView(startTopicView);
 
-        AlertDialog startTopicDialog = startTopicDialogBuilder.create();
-        startTopicDialog.show();
-
-        final Button postButton = startTopicView.findViewById(R.id.start_topic_post_button);
-        final Button cancelButton = startTopicView.findViewById(R.id.start_topic_cancel_button);
-
-        postButton.setOnClickListener(new View.OnClickListener() {
+        startTopicDialogBuilder.setPositiveButton("Post", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(DialogInterface dialog, int which) {
                 final EditText titleEntry = startTopicView.findViewById(R.id.start_topic_title_entry);
                 final EditText bodyEntry = startTopicView.findViewById(R.id.start_topic_body_entry);
 
@@ -111,50 +108,41 @@ public class ForumFragment extends Fragment {
                 final Long tsLong = System.currentTimeMillis() / 1000;
                 final String timeStamp = tsLong.toString();
 
-                addTopic(title, body, timeStamp);
-                openTopic();
+                final TopicModel topicModel = new TopicModel(title, body, senderID, timeStamp);
+
+                addTopicModelToView(topicModel);
+                addTopicToDatabase(topicModel);
+                openTopicActivity(topicModel);
             }
         });
-        cancelButton.setOnClickListener(new View.OnClickListener() {
+        startTopicDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startTopicDialog.dismiss();
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
+
+        AlertDialog startTopicDialog = startTopicDialogBuilder.create();
+        startTopicDialog.show();
     }
 
-    private void addTopic(String title, String body, String timeStamp) {
+    private void addTopicToDatabase(TopicModel topicModel) {
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
         DatabaseReference topicReference = topicsReference.push();
 
-        topicReference.setValue(new TopicModel(title, body, senderID, timeStamp));
+        topicReference.setValue(topicModel);
 
         DatabaseReference postsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
         postsReference.child(topicReference.getKey());
     }
 
-    private void openTopic() {
+    private void openTopicActivity(TopicModel topicModel) {
         Intent intent = new Intent(getActivity(), TopicActivity.class);
+        intent.putExtra("topic", topicModel);
         startActivity(intent);
     }
 
-    private void loadTopics() {
-        DatabaseReference forumReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
-        forumReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot topicDataSnapshot : dataSnapshot.getChildren()) {
-                    addTopicModel(topicDataSnapshot);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-    }
-
-    private void addTopicModel(@NonNull DataSnapshot dataSnapshot) {
+    private void addTopicModelToView(@NonNull DataSnapshot dataSnapshot) {
         final String title = dataSnapshot.child(Constants.DATABASE_TITLE_NODE).getValue().toString();
         final String body = dataSnapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString();
         final String senderID = dataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
@@ -162,5 +150,26 @@ public class ForumFragment extends Fragment {
 
         topicModelItems.add(new TopicModel(title, body, senderID, timeStamp));
         topicViewAdapter.notifyDataSetChanged();
+    }
+
+    private  void addTopicModelToView(TopicModel topicModel){
+        topicModelItems.add(topicModel);
+        topicViewAdapter.notifyDataSetChanged();
+    }
+
+    private void loadTopicsFromDatabase() {
+        DatabaseReference forumReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
+        forumReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot topicDataSnapshot : dataSnapshot.getChildren()) {
+                    addTopicModelToView(topicDataSnapshot);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 }
