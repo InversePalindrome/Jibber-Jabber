@@ -44,10 +44,14 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull PostViewAdapter.ViewHolder holder, int position) {
         final TextView bodyText = holder.bodyText;
+        final TextView usernameText = holder.usernameText;
+        final TextView timeStampText = holder.timeStampText;
 
         PostModel postModel = postList.get(position);
 
         bodyText.setText(postModel.body);
+        usernameText.setText(postModel.username);
+        timeStampText.setText(postModel.timeStamp);
     }
 
     @Override
@@ -58,11 +62,15 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView bodyText;
+        private TextView usernameText;
+        private TextView timeStampText;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             bodyText = itemView.findViewById(R.id.post_body_text);
+            usernameText = itemView.findViewById(R.id.post_username_text);
+            timeStampText = itemView.findViewById(R.id.post_timestamp_text);
         }
 
         @Override

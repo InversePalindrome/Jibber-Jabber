@@ -44,11 +44,15 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final TextView titleText = holder.titleText;
         final TextView bodyText = holder.bodyText;
+        final TextView usernameText = holder.usernameText;
+        final TextView timeStampText = holder.timeStampText;
 
         TopicModel topicModel = topicList.get(position);
 
         titleText.setText(topicModel.title);
         bodyText.setText(topicModel.body);
+        usernameText.setText(topicModel.username);
+        timeStampText.setText(topicModel.timeStamp);
     }
 
     @Override
@@ -59,12 +63,16 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView titleText;
         private TextView bodyText;
+        private TextView usernameText;
+        private TextView timeStampText;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             titleText = itemView.findViewById(R.id.topic_title_text);
             bodyText = itemView.findViewById(R.id.topic_body_text);
+            usernameText = itemView.findViewById(R.id.topic_username_text);
+            timeStampText = itemView.findViewById(R.id.topic_timestamp_text);
         }
 
         @Override

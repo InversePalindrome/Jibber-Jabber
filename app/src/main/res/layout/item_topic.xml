@@ -4,15 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/topic_layout"
     android:layout_width="match_parent"
-    android:layout_height="150dp">
+    android:layout_height="175dp">
+
+    <TextView
+        android:id="@+id/topic_timestamp_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="175dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/default_time_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/topic_username_text"
+        app:layout_constraintTop_toBottomOf="@+id/topic_body_text" />
 
     <TextView
         android:id="@+id/topic_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/title"
         android:textColor="#000000"
         android:textSize="18sp"
@@ -25,11 +37,26 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="25dp"
+        android:layout_marginTop="54dp"
         android:layout_marginEnd="25dp"
-        android:layout_marginBottom="13dp"
+        android:layout_marginBottom="11dp"
         android:text="@string/body"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/topic_timestamp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topic_title_text" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/topic_username_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/username"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/topic_timestamp_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topic_body_text"
+        app:layout_constraintVertical_bias="0.916" />
 </androidx.constraintlayout.widget.ConstraintLayout>

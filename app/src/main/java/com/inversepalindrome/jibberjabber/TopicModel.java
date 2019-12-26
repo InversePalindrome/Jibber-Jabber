@@ -13,41 +13,6 @@ import android.os.Parcelable;
 
 
 public class TopicModel implements Parcelable {
-    public String title;
-    public String body;
-    public String senderID;
-    public String timeStamp;
-
-    public TopicModel() {
-    }
-
-    public TopicModel(String title, String body, String senderID, String timeStamp) {
-        this.title = title;
-        this.body = body;
-        this.senderID = senderID;
-        this.timeStamp = timeStamp;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.title);
-        dest.writeString(this.body);
-        dest.writeString(this.senderID);
-        dest.writeString(this.timeStamp);
-    }
-
-    protected TopicModel(Parcel in) {
-        this.title = in.readString();
-        this.body = in.readString();
-        this.senderID = in.readString();
-        this.timeStamp = in.readString();
-    }
-
     public static final Parcelable.Creator<TopicModel> CREATOR = new Parcelable.Creator<TopicModel>() {
         @Override
         public TopicModel createFromParcel(Parcel source) {
@@ -59,4 +24,46 @@ public class TopicModel implements Parcelable {
             return new TopicModel[size];
         }
     };
+    public String topicID;
+    public String title;
+    public String body;
+    public String senderID;
+    public String username;
+    public String timeStamp;
+
+    public TopicModel() {
+    }
+
+    public TopicModel(String topicID, String title, String body, String senderID, String username, String timeStamp) {
+        this.topicID = topicID;
+        this.title = title;
+        this.body = body;
+        this.senderID = senderID;
+        this.username = username;
+        this.timeStamp = timeStamp;
+    }
+
+    protected TopicModel(Parcel in) {
+        this.topicID = in.readString();
+        this.title = in.readString();
+        this.body = in.readString();
+        this.senderID = in.readString();
+        this.username = in.readString();
+        this.timeStamp = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.topicID);
+        dest.writeString(this.title);
+        dest.writeString(this.body);
+        dest.writeString(this.senderID);
+        dest.writeString(this.username);
+        dest.writeString(this.timeStamp);
+    }
 }

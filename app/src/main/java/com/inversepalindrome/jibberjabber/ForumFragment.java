@@ -15,8 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.fasterxml.uuid.Generators;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ForumFragment extends Fragment {
     private String senderID;
+    private String username;
     private FirebaseDatabase database;
     private ArrayList<TopicModel> topicModelItems;
     private TopicViewAdapter topicViewAdapter;
@@ -47,7 +50,11 @@ public class ForumFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_forum, container, false);
 
-        senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+
+        senderID = user.getUid();
+        username = user.getDisplayName();
 
         database = FirebaseDatabase.getInstance();
 
@@ -105,10 +112,10 @@ public class ForumFragment extends Fragment {
                 final String title = titleEntry.getText().toString();
                 final String body = bodyEntry.getText().toString();
 
-                final Long tsLong = System.currentTimeMillis() / 1000;
-                final String timeStamp = tsLong.toString();
+                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
 
-                final TopicModel topicModel = new TopicModel(title, body, senderID, timeStamp);
+                final String uID = Generators.randomBasedGenerator().generate().toString();
+                final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username, timeStamp);
 
                 addTopicModelToView(topicModel);
                 addTopicToDatabase(topicModel);
@@ -127,13 +134,13 @@ public class ForumFragment extends Fragment {
     }
 
     private void addTopicToDatabase(TopicModel topicModel) {
-        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
-        DatabaseReference topicReference = topicsReference.push();
+        DatabaseReference forumReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
+        DatabaseReference topicReference = forumReference.child(topicModel.topicID);
 
         topicReference.setValue(topicModel);
 
-        DatabaseReference postsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        postsReference.child(topicReference.getKey());
+        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
+        topicsReference.child(topicReference.getKey());
     }
 
     private void openTopicActivity(TopicModel topicModel) {
@@ -143,16 +150,18 @@ public class ForumFragment extends Fragment {
     }
 
     private void addTopicModelToView(@NonNull DataSnapshot dataSnapshot) {
+        final String topicID = dataSnapshot.child(Constants.DATABASE_TOPIC_NODE).getValue().toString();
         final String title = dataSnapshot.child(Constants.DATABASE_TITLE_NODE).getValue().toString();
         final String body = dataSnapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString();
         final String senderID = dataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
+        final String username = dataSnapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString();
         final String timeStamp = dataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
 
-        topicModelItems.add(new TopicModel(title, body, senderID, timeStamp));
+        topicModelItems.add(new TopicModel(topicID, title, body, senderID, username, timeStamp));
         topicViewAdapter.notifyDataSetChanged();
     }
 
-    private  void addTopicModelToView(TopicModel topicModel){
+    private void addTopicModelToView(TopicModel topicModel) {
         topicModelItems.add(topicModel);
         topicViewAdapter.notifyDataSetChanged();
     }
