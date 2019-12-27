@@ -32,6 +32,7 @@ public class Constants {
 
     public static final String STORAGE_IMAGES_NODE = "images";
 
+    public static final String NOTIFICATIONS_MESSAGE_ID = "message_notification";
 
     public static final String DEFAULT_PROFILE_IMAGE = "default_profile_icon.png";
     public static final String DEFAULT_STATUS = "Hi, I am using Jibber Jabber";

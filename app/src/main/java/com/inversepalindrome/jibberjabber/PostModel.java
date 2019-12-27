@@ -14,6 +14,9 @@ public class PostModel {
     public String username;
     public String timeStamp;
 
+    public PostModel() {
+    }
+
     public PostModel(String body, String senderID, String username, String timeStamp) {
         this.body = body;
         this.senderID = senderID;

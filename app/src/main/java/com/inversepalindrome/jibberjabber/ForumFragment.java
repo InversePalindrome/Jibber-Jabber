@@ -140,25 +140,14 @@ public class ForumFragment extends Fragment {
         topicReference.setValue(topicModel);
 
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        topicsReference.child(topicReference.getKey());
+        topicsReference.child(topicModel.topicID);
+
     }
 
     private void openTopicActivity(TopicModel topicModel) {
         Intent intent = new Intent(getActivity(), TopicActivity.class);
         intent.putExtra("topic", topicModel);
         startActivity(intent);
-    }
-
-    private void addTopicModelToView(@NonNull DataSnapshot dataSnapshot) {
-        final String topicID = dataSnapshot.child(Constants.DATABASE_TOPIC_NODE).getValue().toString();
-        final String title = dataSnapshot.child(Constants.DATABASE_TITLE_NODE).getValue().toString();
-        final String body = dataSnapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString();
-        final String senderID = dataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
-        final String username = dataSnapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString();
-        final String timeStamp = dataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
-
-        topicModelItems.add(new TopicModel(topicID, title, body, senderID, username, timeStamp));
-        topicViewAdapter.notifyDataSetChanged();
     }
 
     private void addTopicModelToView(TopicModel topicModel) {
@@ -172,7 +161,8 @@ public class ForumFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot topicDataSnapshot : dataSnapshot.getChildren()) {
-                    addTopicModelToView(topicDataSnapshot);
+                    TopicModel topicModel = topicDataSnapshot.getValue(TopicModel.class);
+                    addTopicModelToView(topicModel);
                 }
             }
 
