@@ -29,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -47,23 +48,41 @@ public class ChatsFragment extends Fragment {
     private FloatingActionButton startChatButton;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_chats, container, false);
-
-        senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         database = FirebaseDatabase.getInstance();
 
         userModelItems = new ArrayList<>();
 
+        senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.fragment_chats, container, false);
+
         userViewAdapter = new UserViewAdapter(R.layout.item_user, userModelItems, new OnClickListener() {
             @Override
             public void onClick(final View view) {
                 int itemPosition = userView.getChildLayoutPosition(view);
-                UserModel userModelItem = userModelItems.get(itemPosition);
+                UserModel receiverUserModel = userModelItems.get(itemPosition);
 
-                openChatActivity(userModelItem);
+                DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+                DatabaseReference senderUserReference = usersReference.child(senderID);
+                senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
+
+                        openChatActivity(senderUserModel, receiverUserModel);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
             }
         });
 
@@ -129,27 +148,38 @@ public class ChatsFragment extends Fragment {
                 final String email = emailEntry.getText().toString().toLowerCase();
 
                 DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+                DatabaseReference senderUserReference = usersReference.child(senderID);
+                senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
 
-                usersReference.orderByChild(Constants.DATABASE_EMAIL_NODE).equalTo(email).
-                        addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.exists()) {
-                                    for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                                        UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
+                        usersReference.orderByChild(Constants.DATABASE_EMAIL_NODE).equalTo(email).
+                                addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                                                UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                        addChatToDatabase(receiverUserModel.uID);
-                                        openChatActivity(receiverUserModel);
+                                                addChatToDatabase(receiverUserModel.uID);
+                                                openChatActivity(senderUserModel, receiverUserModel);
+                                            }
+                                        } else {
+                                            Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                } else {
-                                    Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                            }
-                        });
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
             }
         });
 
@@ -164,8 +194,9 @@ public class ChatsFragment extends Fragment {
         startChatDialog.show();
     }
 
-    private void openChatActivity(UserModel receiverUserModel) {
+    private void openChatActivity(UserModel senderUserModel, UserModel receiverUserModel) {
         Intent intent = new Intent(getActivity(), ChatActivity.class);
+        intent.putExtra("sender", senderUserModel);
         intent.putExtra("receiver", receiverUserModel);
         startActivity(intent);
     }
@@ -212,17 +243,7 @@ public class ChatsFragment extends Fragment {
     }
 
     private void addUserModelToView(@NonNull DataSnapshot userDataSnapshot) {
-        final String receiverUsername = userDataSnapshot.child(
-                Constants.DATABASE_USERNAME_NODE).getValue().toString();
-        final String receiverEmail = userDataSnapshot.child(Constants.DATABASE_EMAIL_NODE)
-                .getValue().toString();
-        final String receiverProfileURI = userDataSnapshot.child(
-                Constants.DATABASE_PROFILE_URI_NODE).getValue().toString();
-        final String receiverStatus = userDataSnapshot.child(Constants.DATABASE_STATUS_NODE)
-                .getValue().toString();
-
-        userModelItems.add(new UserModel(userDataSnapshot.getKey(), receiverUsername,
-                receiverEmail, receiverProfileURI, receiverStatus));
+        userModelItems.add(userDataSnapshot.getValue(UserModel.class));
 
         userViewAdapter.notifyDataSetChanged();
     }

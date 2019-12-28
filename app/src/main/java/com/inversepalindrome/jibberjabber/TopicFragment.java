@@ -51,18 +51,19 @@ public class TopicFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        database = FirebaseDatabase.getInstance();
+
+        postModelItems = new ArrayList<>();
+
         Bundle bundle = getArguments();
         topicModel = bundle.getParcelable("topic");
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_topic, container, false);
-
-        database = FirebaseDatabase.getInstance();
-
-        postModelItems = new ArrayList<>();
 
         postViewAdapter = new PostViewAdapter(R.layout.item_post, postModelItems, new View.OnClickListener() {
             @Override

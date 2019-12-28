@@ -11,6 +11,9 @@ package com.inversepalindrome.jibberjabber;
 public class Constants {
     public static final int MIN_PASSWORD_LENGTH = 8;
 
+    public static final String SERVER_KEY = "key=" + "AAAAC-E5GFQ:APA91bGZ3WEtKmLmjTgjL6A8E_o_ujAUVq7TdxQmqtsp_MOnhVhzvv97px-0DQpujb6c_rm3C8CFH_4kggZPR7-eWpvHW9AuBmPfpgaOdSEklpIPgRwkVVWoBKmSPPqQeTMpdRMXKyZR";
+    public static final String CONTENT_TYPE = "application/json";
+
     public static final String DATABASE_MESSAGES_NODE = "messages";
     public static final String DATABASE_CHATS_NODE = "chats";
     public static final String DATABASE_FORUM_NODE = "forum";
@@ -32,8 +35,10 @@ public class Constants {
 
     public static final String STORAGE_IMAGES_NODE = "images";
 
-    public static final String NOTIFICATIONS_MESSAGE_ID = "message_notification";
+    public static final String MESSAGE_CHANNEL_ID = "message_notification";
 
     public static final String DEFAULT_PROFILE_IMAGE = "default_profile_icon.png";
     public static final String DEFAULT_STATUS = "Hi, I am using Jibber Jabber";
+
+    public static final String FCM_API = "https://fcm.googleapis.com/fcm/send";
 }

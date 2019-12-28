@@ -7,20 +7,25 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +36,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,13 +60,18 @@ public class ChatFragment extends Fragment {
     private ChatView chatView;
     private ChatUser senderUser;
     private ChatUser receiverUser;
+    private UserModel senderUserModel;
     private UserModel receiverUserModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
+
         Bundle bundle = getArguments();
+        senderUserModel = bundle.getParcelable("sender");
         receiverUserModel = bundle.getParcelable("receiver");
     }
 
@@ -64,13 +79,9 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
         chatView = view.findViewById(R.id.chat_chat_view);
 
-        FirebaseUser senderAuthUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        senderUser = new ChatUser(senderAuthUser.getUid(), senderAuthUser.getEmail(), senderAuthUser.getDisplayName());
+        senderUser = new ChatUser(senderUserModel.uID, senderUserModel.email, senderUserModel.username);
         receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
 
         loadChatFromDatabase();
@@ -92,7 +103,6 @@ public class ChatFragment extends Fragment {
         chatView.setDateSeparatorColor(Color.BLACK);
         chatView.setMessageMarginTop(5);
         chatView.setMessageMarginBottom(5);
-
         chatView.setOnClickSendButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,10 +121,8 @@ public class ChatFragment extends Fragment {
 
                 ChatModel chatModel = new ChatModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
 
-                DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
-                DatabaseReference chatReference = messagesReference.child(
-                        ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
-                chatReference.push().setValue(chatModel);
+                addMessageToDatabase(chatModel);
+                sendNotificationToReceiver(chatModel);
             }
         });
     }
@@ -176,10 +184,64 @@ public class ChatFragment extends Fragment {
         transaction.addToBackStack(null);
     }
 
+    private void sendNotificationToReceiver(ChatModel chatModel) {
+        JSONObject notification = new JSONObject();
+        JSONObject notificationBody = new JSONObject();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (getActivity().getApplicationContext());
+
+        String notificationToken = sharedPreferences.getString("notification_token", "");
+
+        try {
+            notificationBody.put("title", "New message from " + senderUser.getName());
+            notificationBody.put("message", chatModel.message);
+            notificationBody.put("senderID", chatModel.senderID);
+            notificationBody.put("receiverID", chatModel.receiverID);
+
+            notification.put("to", "/topics/" + notificationToken);
+            notification.put("data", notificationBody);
+        } catch (JSONException e) {
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", Constants.SERVER_KEY);
+                params.put("Content-Type", Constants.CONTENT_TYPE);
+
+                return params;
+            }
+        };
+
+        RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+    }
+
     private void setDefaultActionBar() {
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(false);
         actionBar.setDisplayShowTitleEnabled(true);
+    }
+
+    private void addMessageToDatabase(ChatModel chatModel){
+        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
+
+        DatabaseReference chatReference = messagesReference.child(
+                ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
+        chatReference.push().setValue(chatModel);
     }
 
     private void loadChatFromDatabase() {

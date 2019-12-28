@@ -36,6 +36,8 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        storage = FirebaseStorage.getInstance();
+
         Bundle bundle = getArguments();
         userModel = bundle.getParcelable("user");
     }
@@ -44,8 +46,6 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        storage = FirebaseStorage.getInstance();
 
         profileImage = view.findViewById(R.id.profile_profile_image);
         usernameText = view.findViewById(R.id.profile_username_text);
