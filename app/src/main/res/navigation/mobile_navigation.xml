@@ -11,8 +11,8 @@
         tools:layout="@layout/fragment_forum" />
 
     <fragment
-        android:id="@+id/messages_fragment"
-        android:label="@string/messages"
+        android:id="@+id/chats_fragment"
+        android:label="@string/chats"
         tools:layout="@layout/fragment_chats" />
 
     <fragment

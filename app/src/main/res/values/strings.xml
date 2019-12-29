@@ -7,7 +7,7 @@
     <string name="register">Register</string>
     <string name="settings">Settings</string>
     <string name="re_password">Re-password</string>
-    <string name="new_account">New account?</string>
+    <string name="new_account">New account?  <u>Register here!</u></string>
     <string name="register_here"><u>Register here!</u></string>
     <string name="remember_me">Remember me</string>
     <string name="profile_picture">Profile Picture</string>

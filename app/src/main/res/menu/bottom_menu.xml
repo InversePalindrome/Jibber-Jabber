@@ -7,7 +7,7 @@
         android:title="@string/forum"
         android:icon="@drawable/forum_icon"/>
     <item
-        android:id="@+id/messages_fragment"
+        android:id="@+id/chats_fragment"
         android:title="@string/chats"
         android:icon="@drawable/messages_icon"/>
     <item

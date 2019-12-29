@@ -7,13 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".RegisterActivity">
 
-    <EditText
+    <com.maksim88.passwordedittext.PasswordEditText
         android:id="@+id/register_repassword_entry"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="34dp"
-        android:layout_marginEnd="34dp"
-        android:layout_marginBottom="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="31dp"
         android:ellipsize="end"
         android:ems="10"
         android:hint="@string/re_password"
@@ -23,7 +23,6 @@
         android:textColorHint="@color/grey"
         android:textCursorDrawable="@drawable/black_cursor"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/register_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_password_entry" />
@@ -32,13 +31,12 @@
         android:id="@+id/register_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="94dp"
+        android:layout_marginTop="44dp"
         android:fontFamily="@font/baloo"
         android:onClick="onRegister"
         android:text="@string/register"
         android:textColor="#000000"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_repassword_entry" />
@@ -46,10 +44,10 @@
     <EditText
         android:id="@+id/register_email_entry"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="33dp"
-        android:layout_marginEnd="33dp"
-        android:layout_marginBottom="28dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="320dp"
+        android:layout_marginEnd="31dp"
         android:ellipsize="end"
         android:ems="10"
         android:hint="@string/email"
@@ -59,18 +57,17 @@
         android:textColorHint="@color/grey"
         android:textCursorDrawable="@drawable/black_cursor"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/register_password_entry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/register_username_entry" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
+    <com.maksim88.passwordedittext.PasswordEditText
         android:id="@+id/register_password_entry"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginEnd="35dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="31dp"
         android:autofillHints="@string/password"
         android:ellipsize="end"
         android:ems="10"
@@ -81,7 +78,6 @@
         android:textColorHint="@color/grey"
         android:textCursorDrawable="@drawable/black_cursor"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/register_repassword_entry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_email_entry" />
@@ -90,24 +86,22 @@
         android:id="@+id/register_welcome_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="133dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="38dp"
         android:fontFamily="@font/baloo"
         android:text="@string/welcome"
         android:textColor="#000000"
-        android:textSize="24sp"
+        android:textSize="25sp"
         app:layout_constraintBottom_toTopOf="@+id/register_username_entry"
-        app:layout_constraintStart_toStartOf="@+id/register_username_entry"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/register_username_entry"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginEnd="35dp"
-        android:layout_marginBottom="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="34dp"
+        android:layout_marginEnd="34dp"
+        android:layout_marginBottom="28dp"
         android:ems="10"
         android:fontFamily="sans-serif"
         android:hint="@string/username"
@@ -118,6 +112,5 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/register_email_entry"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/register_welcome_text" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

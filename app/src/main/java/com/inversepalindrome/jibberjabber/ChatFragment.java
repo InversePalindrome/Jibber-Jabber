@@ -7,11 +7,9 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,14 +47,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class ChatFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseStorage storage;
+    private OnProfileSelectedListener listener;
     private ChatView chatView;
     private ChatUser senderUser;
     private ChatUser receiverUser;
@@ -73,6 +70,9 @@ public class ChatFragment extends Fragment {
         Bundle bundle = getArguments();
         senderUserModel = bundle.getParcelable("sender");
         receiverUserModel = bundle.getParcelable("receiver");
+
+        senderUser = new ChatUser(senderUserModel.uID, senderUserModel.email, senderUserModel.username);
+        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
     }
 
     @Override
@@ -81,15 +81,16 @@ public class ChatFragment extends Fragment {
 
         chatView = view.findViewById(R.id.chat_chat_view);
 
-        senderUser = new ChatUser(senderUserModel.uID, senderUserModel.email, senderUserModel.username);
-        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
-
         loadChatFromDatabase();
 
         customizeChatView();
         customizeActionBar(receiverUserModel.username, receiverUserModel.profileURI);
 
         return view;
+    }
+
+    public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
+        this.listener = listener;
     }
 
     private void customizeChatView() {
@@ -167,67 +168,63 @@ public class ChatFragment extends Fragment {
     }
 
     private void openProfileFragment() {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ProfileFragment profileFragment = new ProfileFragment();
-
         setDefaultActionBar();
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("user", receiverUserModel);
-
-        profileFragment.setArguments(bundle);
-
-        transaction.replace(R.id.chat_layout, profileFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-        transaction.addToBackStack(null);
+        listener.onProfileSelected(receiverUserModel);
     }
 
     private void sendNotificationToReceiver(ChatModel chatModel) {
         JSONObject notification = new JSONObject();
         JSONObject notificationBody = new JSONObject();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
-                (getActivity().getApplicationContext());
+        DatabaseReference fcmTokensReference = database.getReference().child(Constants.DATABASE_FCM_TOKENS_NODE);
+        DatabaseReference fcmTokenReference = fcmTokensReference.child(chatModel.receiverID);
 
-        String notificationToken = sharedPreferences.getString("notification_token", "");
-
-        try {
-            notificationBody.put("title", "New message from " + senderUser.getName());
-            notificationBody.put("message", chatModel.message);
-            notificationBody.put("senderID", chatModel.senderID);
-            notificationBody.put("receiverID", chatModel.receiverID);
-
-            notification.put("to", "/topics/" + notificationToken);
-            notification.put("data", notificationBody);
-        } catch (JSONException e) {
-            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification
-                , new Response.Listener<JSONObject>() {
+        fcmTokenReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String fcmToken = dataSnapshot.getValue().toString();
 
+                try {
+                    notificationBody.put("title", "New message from " + senderUser.getName());
+                    notificationBody.put("message", chatModel.message);
+                    notificationBody.put("senderID", chatModel.senderID);
+                    notificationBody.put("receiverID", chatModel.receiverID);
+
+                    notification.put("to", fcmToken);
+                    notification.put("data", notificationBody);
+                } catch (JSONException e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification
+                        , new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Request error " + error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Authorization", Constants.SERVER_KEY);
+                        params.put("Content-Type", Constants.CONTENT_TYPE);
+
+                        return params;
+                    }
+                };
+
+                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjectRequest);
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Authorization", Constants.SERVER_KEY);
-                params.put("Content-Type", Constants.CONTENT_TYPE);
-
-                return params;
-            }
-        };
-
-        RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+        });
     }
 
     private void setDefaultActionBar() {
@@ -236,7 +233,7 @@ public class ChatFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(true);
     }
 
-    private void addMessageToDatabase(ChatModel chatModel){
+    private void addMessageToDatabase(ChatModel chatModel) {
         DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
 
         DatabaseReference chatReference = messagesReference.child(
@@ -324,5 +321,9 @@ public class ChatFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    public interface OnProfileSelectedListener {
+        void onProfileSelected(UserModel userModel);
     }
 }

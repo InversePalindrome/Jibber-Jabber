@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.inversepalindrome.jibberjabber"
-    android:versionCode="1"
-    android:versionName="1.0">
+    package="com.inversepalindrome.jibberjabber">
 
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,11 +20,7 @@
         android:roundIcon="@mipmap/jibber_jabber_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".IDService"
-            android:enabled="true"
-            android:exported="true"></service>
-
+        <activity android:name=".AuthenticationActivity" android:screenOrientation="portrait"/>
         <activity
             android:name=".TopicActivity"
             android:screenOrientation="portrait"
@@ -59,12 +53,10 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name="MessagingService"
-            android:permission="com.google.android.c2dm.permission.SEND"
+            android:name=".MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
     </application>

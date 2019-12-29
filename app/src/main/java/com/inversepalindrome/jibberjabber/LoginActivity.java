@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -21,6 +22,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
+    private FirebaseDatabase database;
     private EditText emailEntry;
     private EditText passwordEntry;
     private CheckBox rememberMeCheckBox;
@@ -38,8 +43,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
 
-        if (auth.getCurrentUser() != null) {
+        FirebaseUser user = auth.getCurrentUser();
+
+        if (user != null) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
@@ -95,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            addFCMTokenToDatabase(auth.getCurrentUser().getUid());
                             startActivity(new Intent(getBaseContext(), MainActivity.class));
                             finish();
                         } else {
@@ -110,6 +119,16 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onForgotPassword(View view) {
         startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
+    }
+
+    private void addFCMTokenToDatabase(String uID) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (getApplicationContext());
+
+        String FCMToken = sharedPreferences.getString("fcm_token", "NO_TOKEN");
+
+        DatabaseReference FCMTokensReference = database.getReference().child(Constants.DATABASE_FCM_TOKENS_NODE);
+        FCMTokensReference.child(uID).setValue(FCMToken);
     }
 }
 

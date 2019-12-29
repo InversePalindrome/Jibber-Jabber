@@ -7,7 +7,6 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,8 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.maksim88.passwordedittext.PasswordEditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,11 +30,10 @@ import androidx.appcompat.app.AppCompatActivity;
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseDatabase database;
-    private FirebaseStorage storage;
     private EditText usernameEntry;
     private EditText emailEntry;
-    private EditText passwordEntry;
-    private EditText rePasswordEntry;
+    private PasswordEditText passwordEntry;
+    private PasswordEditText rePasswordEntry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +42,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
 
         usernameEntry = findViewById(R.id.register_username_entry);
         emailEntry = findViewById(R.id.register_email_entry);
@@ -91,15 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                             FirebaseUser user = auth.getCurrentUser();
 
                             if (user != null) {
-                                StorageReference profileImageReference = storage.getReference()
-                                        .child(Constants.STORAGE_IMAGES_NODE).child(Constants.DEFAULT_PROFILE_IMAGE);
-                                profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        updateUsersDatabase(user, username, email, Constants.DEFAULT_PROFILE_IMAGE, Constants.DEFAULT_STATUS);
-                                    }
-                                });
-
+                                addUserToDatabase(user, username, email, Constants.DEFAULT_PROFILE_IMAGE, Constants.DEFAULT_STATUS);
                                 updateAuthAccount(user, username);
                             }
 
@@ -118,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
         user.updateProfile(profileUpdate);
     }
 
-    private void updateUsersDatabase(FirebaseUser user, String username, String email, String profileURI, String status) {
+    private void addUserToDatabase(FirebaseUser user, String username, String email, String profileURI, String status) {
         UserModel userModel = new UserModel(user.getUid(), username, email, profileURI, status);
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
