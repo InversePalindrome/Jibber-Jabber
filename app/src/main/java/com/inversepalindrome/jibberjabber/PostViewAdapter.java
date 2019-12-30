@@ -20,12 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHolder> {
-    private final View.OnClickListener listener;
     private int layout;
     private ArrayList<PostModel> postList;
+    private OnPostSelectedListener listener;
 
-
-    public PostViewAdapter(int layout, ArrayList<PostModel> postList, View.OnClickListener listener) {
+    public PostViewAdapter(int layout, ArrayList<PostModel> postList, OnPostSelectedListener listener) {
         this.layout = layout;
         this.postList = postList;
         this.listener = listener;
@@ -35,7 +34,6 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
     @Override
     public PostViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-        view.setOnClickListener(listener);
         PostViewAdapter.ViewHolder viewHolder = new PostViewAdapter.ViewHolder(view);
 
         return viewHolder;
@@ -49,9 +47,17 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
 
         PostModel postModel = postList.get(position);
 
-        bodyText.setText(postModel.body);
-        usernameText.setText(postModel.username);
-        timeStampText.setText(postModel.timeStamp);
+        bodyText.setText(postModel.getBody());
+
+        usernameText.setText(postModel.getUsername());
+        usernameText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUsernameSelected(postModel);
+            }
+        });
+
+        timeStampText.setText(postModel.getTimeStamp());
     }
 
     @Override
@@ -75,6 +81,11 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.ViewHo
 
         @Override
         public void onClick(View view) {
+
         }
+    }
+
+    public interface OnPostSelectedListener {
+        void onUsernameSelected(PostModel postModel);
     }
 }

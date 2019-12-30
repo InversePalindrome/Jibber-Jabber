@@ -59,10 +59,10 @@ public class UserViewAdapter extends Adapter<UserViewAdapter.ViewHolder> {
 
         UserModel userModel = userList.get(position);
 
-        usernameText.setText(userModel.username);
+        usernameText.setText(userModel.getUsername());
 
         StorageReference profileImageReference = storage.getReference()
-                .child(Constants.STORAGE_IMAGES_NODE).child(userModel.profileURI);
+                .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
 
         profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override

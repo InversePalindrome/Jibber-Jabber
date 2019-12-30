@@ -15,7 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 
-public class ChatActivity extends AppCompatActivity implements ChatFragment.OnProfileSelectedListener {
+public class ChatActivity extends AppCompatActivity implements ChatFragment.ProfileSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnPr
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof ChatFragment) {
             ChatFragment chatFragment = (ChatFragment) fragment;
-            chatFragment.setOnProfileSelectedListener(this);
+            chatFragment.setProfileSelectedListener(this);
         }
     }
 

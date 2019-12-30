@@ -49,10 +49,10 @@ public class TopicViewAdapter extends RecyclerView.Adapter<TopicViewAdapter.View
 
         TopicModel topicModel = topicList.get(position);
 
-        titleText.setText(topicModel.title);
-        bodyText.setText(topicModel.body);
-        usernameText.setText(topicModel.username);
-        timeStampText.setText(topicModel.timeStamp);
+        titleText.setText(topicModel.getTitle());
+        bodyText.setText(topicModel.getBody());
+        usernameText.setText(topicModel.getUsername());
+        timeStampText.setText(topicModel.getTimeStamp());
     }
 
     @Override

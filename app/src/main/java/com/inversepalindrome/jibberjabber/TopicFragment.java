@@ -17,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,8 +36,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-public class TopicFragment extends Fragment {
+public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSelectedListener {
     private FirebaseDatabase database;
+    private FirebaseUser currentUser;
+    private OnPostSelectedListener postListener;
     private ArrayList<PostModel> postModelItems;
     private PostViewAdapter postViewAdapter;
     private RecyclerView postView;
@@ -52,12 +56,12 @@ public class TopicFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         database = FirebaseDatabase.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         postModelItems = new ArrayList<>();
 
         Bundle bundle = getArguments();
         topicModel = bundle.getParcelable("topic");
-
     }
 
     @Override
@@ -65,12 +69,7 @@ public class TopicFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_topic, container, false);
 
-        postViewAdapter = new PostViewAdapter(R.layout.item_post, postModelItems, new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-            }
-        });
+        postViewAdapter = new PostViewAdapter(R.layout.item_post, postModelItems, this);
 
         postView = view.findViewById(R.id.topic_post_view);
         titleText = view.findViewById(R.id.topic_title_text);
@@ -91,17 +90,22 @@ public class TopicFragment extends Fragment {
 
         postView.addItemDecoration(dividerItemDecoration);
 
-        titleText.setText(topicModel.title);
-        bodyText.setText(topicModel.body);
-        usernameText.setText(topicModel.username);
-        timeStampText.setText(topicModel.timeStamp);
+        titleText.setText(topicModel.getTitle());
+        bodyText.setText(topicModel.getBody());
+        usernameText.setText(topicModel.getUsername());
+        timeStampText.setText(topicModel.getTimeStamp());
 
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String post = postEntry.getText().toString();
+                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
 
-                addPost(post);
+                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName(), timeStamp);
+
+                addPostToDatabase(postModel);
+                addPostToView(postModel);
+
                 updateUIAfterPost();
             }
         });
@@ -111,19 +115,31 @@ public class TopicFragment extends Fragment {
         return view;
     }
 
-    private void addPost(String body) {
-        final String username = usernameText.getText().toString();
-        final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
+    @Override
+    public void onUsernameSelected(PostModel postModel) {
+        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+        DatabaseReference userReference = usersReference.child(postModel.getSenderID());
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserModel userModel = dataSnapshot.getValue(UserModel.class);
 
-        PostModel postModel = new PostModel(body, topicModel.senderID, username, timeStamp);
+                postListener.onUsernameSelected(userModel);
+            }
 
-        addPostToDatabase(postModel);
-        addPostToView(postModel);
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public void setOnPostListener(OnPostSelectedListener postListener){
+        this.postListener = postListener;
     }
 
     private void addPostToDatabase(PostModel postModel) {
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        DatabaseReference topicReference = topicsReference.child(topicModel.topicID);
+        DatabaseReference topicReference = topicsReference.child(topicModel.getTopicID());
 
         DatabaseReference postReference = topicReference.push();
 
@@ -142,15 +158,20 @@ public class TopicFragment extends Fragment {
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    private void setupTopicPagination(){
+
+    }
+
     private void loadPostsFromDatabase() {
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        DatabaseReference topicReference = topicsReference.child(topicModel.topicID);
+        DatabaseReference topicReference = topicsReference.child(topicModel.getTopicID());
 
         topicReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     PostModel postModel = postSnapshot.getValue(PostModel.class);
+
                     addPostToView(postModel);
                 }
             }
@@ -159,5 +180,9 @@ public class TopicFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    public interface OnPostSelectedListener{
+        void onUsernameSelected(UserModel userModel);
     }
 }

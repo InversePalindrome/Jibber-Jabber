@@ -5,7 +5,7 @@
     android:id="@+id/login_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
+    tools:context=".LoginFragment">
 
     <Button
         android:id="@+id/login_button"
@@ -13,13 +13,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginBottom="39dp"
+        android:layout_marginBottom="40dp"
         android:fontFamily="@font/baloo"
-        android:onClick="onLogin"
         android:text="@string/login"
         android:textColor="#000000"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/login_remember_me_checkbox"
+        app:layout_constraintBottom_toTopOf="@+id/login_forgot_password_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_password_entry" />
@@ -53,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="11dp"
         android:autofillHints="@string/password"
         android:ellipsize="start"
         android:ems="10"
@@ -70,35 +69,33 @@
         app:layout_constraintTop_toBottomOf="@+id/login_email_entry" />
 
     <TextView
-        android:id="@+id/login_new_account_label"
+        android:id="@+id/login_register_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="103dp"
+        android:layout_marginStart="39dp"
+        android:layout_marginBottom="95dp"
         android:fontFamily="@font/baloo"
-        android:onClick="onRegister"
         android:text="@string/new_account"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/login_forgot_password_button"
-        app:layout_constraintStart_toStartOf="@+id/login_forgot_password_button"
-        app:layout_constraintTop_toBottomOf="@+id/login_remember_me_checkbox" />
+        app:layout_constraintStart_toStartOf="@+id/login_remember_me_checkbox"
+        app:layout_constraintTop_toBottomOf="@+id/login_forgot_password_text" />
 
     <CheckBox
         android:id="@+id/login_remember_me_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="19dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="22dp"
         android:buttonTint="@color/colorPrimary"
         android:fontFamily="@font/baloo"
         android:text="@string/remember_me"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/login_new_account_label"
-        app:layout_constraintEnd_toStartOf="@+id/login_forgot_password_button"
+        app:layout_constraintEnd_toStartOf="@+id/login_forgot_password_text"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_button" />
+        app:layout_constraintTop_toTopOf="@+id/login_forgot_password_text" />
 
     <ImageView
         android:id="@+id/login_jibber_jabber_icon"
@@ -116,19 +113,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/login_forgot_password_button"
+        android:id="@+id/login_forgot_password_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="27dp"
         android:fontFamily="@font/baloo"
-        android:onClick="onForgotPassword"
         android:text="@string/forgot_password"
         android:textAllCaps="false"
         android:textColor="#000000"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/login_new_account_label"
+        app:layout_constraintBottom_toTopOf="@+id/login_register_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/login_remember_me_checkbox" />
+        app:layout_constraintStart_toEndOf="@+id/login_remember_me_checkbox"
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

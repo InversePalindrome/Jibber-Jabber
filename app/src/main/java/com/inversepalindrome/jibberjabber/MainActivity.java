@@ -7,6 +7,7 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,7 +22,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        ChatsFragment.OpenChatListener, SettingsFragment.LogOutSelectedListener {
     private FirebaseAuth auth;
     private BottomNavigationView navigationView;
 
@@ -55,6 +57,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
         navigationView.setSelectedItemId(R.id.chats_fragment);
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof ChatsFragment) {
+            ChatsFragment chatsFragment = (ChatsFragment) fragment;
+            chatsFragment.setOpenChatListener(this);
+        } else if (fragment instanceof SettingsFragment) {
+            SettingsFragment settingsFragment = (SettingsFragment) fragment;
+            settingsFragment.setLogOutSelectedListener(this);
+        }
+    }
+
+    @Override
+    public void onOpenChat(UserModel senderUserModel, UserModel receiverUserModel) {
+        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+        intent.putExtra("sender", senderUserModel);
+        intent.putExtra("receiver", receiverUserModel);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onLogOut() {
+        auth.signOut();
+
+        startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
+        finish();
     }
 
     private void switchFragment(Fragment fragment) {

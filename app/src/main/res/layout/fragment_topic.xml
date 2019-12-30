@@ -69,7 +69,6 @@
         android:id="@+id/topic_enter_text_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,6 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:hint="@string/write_new_post"
             android:inputType="text"
             android:textColor="#000000"
             android:textCursorDrawable="@drawable/black_cursor" />

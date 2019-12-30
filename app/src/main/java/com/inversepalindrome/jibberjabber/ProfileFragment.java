@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
         emailText = view.findViewById(R.id.profile_email_text);
 
         StorageReference profileImageReference = storage.getReference()
-                .child(Constants.STORAGE_IMAGES_NODE).child(userModel.profileURI);
+                .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
 
         profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -62,9 +62,9 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        usernameText.setText(userModel.username);
-        statusText.setText(userModel.status);
-        emailText.setText(userModel.email);
+        usernameText.setText(userModel.getUsername());
+        statusText.setText(userModel.getStatus());
+        emailText.setText(userModel.getEmail());
 
         return view;
     }

@@ -39,4 +39,5 @@
     <string name="body">Body</string>
     <string name="post">Post</string>
     <string name="cancel">Cancel</string>
+    <string name="write_new_post">Write new post...</string>
 </resources>

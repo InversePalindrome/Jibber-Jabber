@@ -24,11 +24,11 @@ public class UserModel implements Parcelable {
         }
     };
 
-    public String uID;
-    public String username;
-    public String email;
-    public String profileURI;
-    public String status;
+    private String uID;
+    private String username;
+    private String email;
+    private String profileURI;
+    private String status;
 
     public UserModel() {
     }
@@ -61,5 +61,45 @@ public class UserModel implements Parcelable {
         dest.writeString(this.email);
         dest.writeString(this.profileURI);
         dest.writeString(this.status);
+    }
+
+    public String getuID() {
+        return uID;
+    }
+
+    public void setuID(String uID) {
+        this.uID = uID;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getProfileURI() {
+        return profileURI;
+    }
+
+    public void setProfileURI(String profileURI) {
+        this.profileURI = profileURI;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

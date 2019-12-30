@@ -24,12 +24,13 @@ public class TopicModel implements Parcelable {
             return new TopicModel[size];
         }
     };
-    public String topicID;
-    public String title;
-    public String body;
-    public String senderID;
-    public String username;
-    public String timeStamp;
+
+    private String topicID;
+    private String title;
+    private String body;
+    private String senderID;
+    private String username;
+    private String timeStamp;
 
     public TopicModel() {
     }
@@ -65,5 +66,53 @@ public class TopicModel implements Parcelable {
         dest.writeString(this.senderID);
         dest.writeString(this.username);
         dest.writeString(this.timeStamp);
+    }
+
+    public String getTopicID() {
+        return topicID;
+    }
+
+    public void setTopicID(String topicID) {
+        this.topicID = topicID;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public String getSenderID() {
+        return senderID;
+    }
+
+    public void setSenderID(String senderID) {
+        this.senderID = senderID;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }

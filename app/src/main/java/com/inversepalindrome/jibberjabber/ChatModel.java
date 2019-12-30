@@ -9,10 +9,10 @@ package com.inversepalindrome.jibberjabber;
 
 
 public class ChatModel {
-    public String senderID;
-    public String receiverID;
-    public String message;
-    public String timeStamp;
+    private String senderID;
+    private String receiverID;
+    private String message;
+    private String timeStamp;
 
     public ChatModel() {
     }
@@ -21,6 +21,38 @@ public class ChatModel {
         this.senderID = senderID;
         this.receiverID = receiverID;
         this.message = message;
+        this.timeStamp = timeStamp;
+    }
+
+    public String getSenderID() {
+        return senderID;
+    }
+
+    public void setSenderID(String senderID) {
+        this.senderID = senderID;
+    }
+
+    public String getReceiverID() {
+        return receiverID;
+    }
+
+    public void setReceiverID(String receiverID) {
+        this.receiverID = receiverID;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

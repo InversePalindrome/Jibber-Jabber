@@ -8,7 +8,6 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +39,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class ChatsFragment extends Fragment {
     private String senderID;
+    private OpenChatListener listener;
     private FirebaseDatabase database;
     private ArrayList<UserModel> userModelItems;
     private UserViewAdapter userViewAdapter;
@@ -76,7 +76,7 @@ public class ChatsFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
 
-                        openChatActivity(senderUserModel, receiverUserModel);
+                        listener.onOpenChat(senderUserModel, receiverUserModel);
                     }
 
                     @Override
@@ -105,7 +105,7 @@ public class ChatsFragment extends Fragment {
         UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
             @Override
             public void onDeleteClicked(int position) {
-                removeChatFromDatabase(userModelItems.get(position).uID);
+                removeChatFromDatabase(userModelItems.get(position).getuID());
 
                 userModelItems.remove(position);
                 userViewAdapter.notifyItemRemoved(position);
@@ -132,6 +132,10 @@ public class ChatsFragment extends Fragment {
         loadChatFromDatabase();
 
         return view;
+    }
+
+    void setOpenChatListener(OpenChatListener listener) {
+        this.listener = listener;
     }
 
     public void openStartChatDialog() {
@@ -162,8 +166,8 @@ public class ChatsFragment extends Fragment {
                                             for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                                addChatToDatabase(receiverUserModel.uID);
-                                                openChatActivity(senderUserModel, receiverUserModel);
+                                                addChatToDatabase(receiverUserModel.getuID());
+                                                listener.onOpenChat(senderUserModel, receiverUserModel);
                                             }
                                         } else {
                                             Toast.makeText(getActivity(), "Email address not registered to Jibber Jabber!", Toast.LENGTH_SHORT).show();
@@ -192,13 +196,6 @@ public class ChatsFragment extends Fragment {
 
         AlertDialog startChatDialog = startChatDialogBuilder.create();
         startChatDialog.show();
-    }
-
-    private void openChatActivity(UserModel senderUserModel, UserModel receiverUserModel) {
-        Intent intent = new Intent(getActivity(), ChatActivity.class);
-        intent.putExtra("sender", senderUserModel);
-        intent.putExtra("receiver", receiverUserModel);
-        startActivity(intent);
     }
 
     private void addChatToDatabase(String receiverID) {
@@ -295,5 +292,9 @@ public class ChatsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    public interface OpenChatListener {
+        void onOpenChat(UserModel senderUserModel, UserModel receiverUserModel);
     }
 }

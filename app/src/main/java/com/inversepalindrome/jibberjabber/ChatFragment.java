@@ -53,7 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseStorage storage;
-    private OnProfileSelectedListener listener;
+    private ProfileSelectedListener listener;
     private ChatView chatView;
     private ChatUser senderUser;
     private ChatUser receiverUser;
@@ -71,8 +71,8 @@ public class ChatFragment extends Fragment {
         senderUserModel = bundle.getParcelable("sender");
         receiverUserModel = bundle.getParcelable("receiver");
 
-        senderUser = new ChatUser(senderUserModel.uID, senderUserModel.email, senderUserModel.username);
-        receiverUser = new ChatUser(receiverUserModel.uID, receiverUserModel.email, receiverUserModel.username);
+        senderUser = new ChatUser(senderUserModel.getuID(), senderUserModel.getEmail(), senderUserModel.getUsername());
+        receiverUser = new ChatUser(receiverUserModel.getuID(), receiverUserModel.getEmail(), receiverUserModel.getUsername());
     }
 
     @Override
@@ -84,12 +84,12 @@ public class ChatFragment extends Fragment {
         loadChatFromDatabase();
 
         customizeChatView();
-        customizeActionBar(receiverUserModel.username, receiverUserModel.profileURI);
+        customizeActionBar(receiverUserModel.getUsername(), receiverUserModel.getProfileURI());
 
         return view;
     }
 
-    public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
+    public void setProfileSelectedListener(ProfileSelectedListener listener) {
         this.listener = listener;
     }
 
@@ -177,7 +177,7 @@ public class ChatFragment extends Fragment {
         JSONObject notificationBody = new JSONObject();
 
         DatabaseReference fcmTokensReference = database.getReference().child(Constants.DATABASE_FCM_TOKENS_NODE);
-        DatabaseReference fcmTokenReference = fcmTokensReference.child(chatModel.receiverID);
+        DatabaseReference fcmTokenReference = fcmTokensReference.child(chatModel.getReceiverID());
 
         fcmTokenReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -186,9 +186,9 @@ public class ChatFragment extends Fragment {
 
                 try {
                     notificationBody.put("title", "New message from " + senderUser.getName());
-                    notificationBody.put("message", chatModel.message);
-                    notificationBody.put("senderID", chatModel.senderID);
-                    notificationBody.put("receiverID", chatModel.receiverID);
+                    notificationBody.put("message", chatModel.getMessage());
+                    notificationBody.put("senderID", chatModel.getSenderID());
+                    notificationBody.put("receiverID", chatModel.getReceiverID());
 
                     notification.put("to", fcmToken);
                     notification.put("data", notificationBody);
@@ -293,11 +293,11 @@ public class ChatFragment extends Fragment {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 ChatModel chatModel = dataSnapshot.getValue(ChatModel.class);
 
-                if (!chatModel.senderID.equals(senderUser.getId())) {
+                if (!chatModel.getSenderID().equals(senderUser.getId())) {
                     Message message = new Message.Builder()
                             .setUser(receiverUser)
                             .setRight(false)
-                            .setText(chatModel.message)
+                            .setText(chatModel.getMessage())
                             .hideIcon(true)
                             .build();
 
@@ -323,7 +323,7 @@ public class ChatFragment extends Fragment {
         });
     }
 
-    public interface OnProfileSelectedListener {
+    public interface ProfileSelectedListener {
         void onProfileSelected(UserModel userModel);
     }
 }

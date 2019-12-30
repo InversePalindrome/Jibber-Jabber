@@ -142,12 +142,12 @@ public class ForumFragment extends Fragment {
 
     private void addTopicToDatabase(TopicModel topicModel) {
         DatabaseReference forumReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
-        DatabaseReference topicReference = forumReference.child(topicModel.topicID);
+        DatabaseReference topicReference = forumReference.child(topicModel.getTopicID());
 
         topicReference.setValue(topicModel);
 
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        topicsReference.child(topicModel.topicID);
+        topicsReference.child(topicModel.getTopicID());
 
     }
 

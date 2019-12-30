@@ -47,7 +47,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 import pl.aprilapps.easyphotopicker.ChooserType;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
@@ -56,11 +55,12 @@ import pl.aprilapps.easyphotopicker.MediaFile;
 import pl.aprilapps.easyphotopicker.MediaSource;
 
 
-public class SettingsFragment extends Fragment implements OnClickListener {
+public class SettingsFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
+    private LogOutSelectedListener listener;
     private CircleImageView profileImage;
     private TextView usernameText;
     private TextView statusText;
@@ -98,12 +98,42 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         cameraButton = view.findViewById(R.id.settings_camera_button);
         statusButton = view.findViewById(R.id.settings_edit_status_button);
 
-        changeEmailButton.setOnClickListener(this);
-        changePasswordButton.setOnClickListener(this);
-        logOutButton.setOnClickListener(this);
-        galleryButton.setOnClickListener(this);
-        cameraButton.setOnClickListener(this);
-        statusButton.setOnClickListener(this);
+        changeEmailButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangeEmailDialog();
+            }
+        });
+        changePasswordButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangePasswordDialog();
+            }
+        });
+        statusButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangeStatusDialog();
+            }
+        });
+        logOutButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onLogOut();
+            }
+        });
+        galleryButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+        cameraButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCamera();
+            }
+        });
 
         usernameText.setText(user.getDisplayName());
 
@@ -116,30 +146,6 @@ public class SettingsFragment extends Fragment implements OnClickListener {
                 setChooserType(ChooserType.CAMERA_AND_GALLERY).build();
 
         return view;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.settings_change_email_button:
-                openChangeEmailDialog();
-                break;
-            case R.id.settings_change_password_button:
-                openChangePasswordDialog();
-                break;
-            case R.id.settings_gallery_button:
-                openGallery();
-                break;
-            case R.id.settings_camera_button:
-                openCamera();
-                break;
-            case R.id.settings_edit_status_button:
-                openChangeStatusDialog();
-                break;
-            case R.id.settings_log_out_button:
-                onLogOut();
-                break;
-        }
     }
 
     @Override
@@ -164,6 +170,10 @@ public class SettingsFragment extends Fragment implements OnClickListener {
                 Toast.makeText(getActivity(), "Error: Profile image couldn't be selected!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void setLogOutSelectedListener(LogOutSelectedListener listener) {
+        this.listener = listener;
     }
 
     private void openChangeStatusDialog() {
@@ -288,14 +298,6 @@ public class SettingsFragment extends Fragment implements OnClickListener {
         passwordDialog.show();
     }
 
-    private void onLogOut() {
-        auth.signOut();
-
-        FragmentActivity activity = getActivity();
-        activity.startActivity(new Intent(activity.getBaseContext(), LoginActivity.class));
-        activity.finish();
-    }
-
     private void openGallery() {
         profileDialog.openGallery(this);
     }
@@ -396,5 +398,9 @@ public class SettingsFragment extends Fragment implements OnClickListener {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    public interface LogOutSelectedListener {
+        void onLogOut();
     }
 }
