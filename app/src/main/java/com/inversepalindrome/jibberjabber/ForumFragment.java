@@ -16,14 +16,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.fasterxml.uuid.Generators;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.SnapshotParser;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 
@@ -42,7 +44,7 @@ public class ForumFragment extends Fragment {
     private String username;
     private FirebaseDatabase database;
     private ArrayList<TopicModel> topicModelItems;
-    private TopicViewAdapter topicViewAdapter;
+    private FirebaseRecyclerAdapter topicViewAdapter;
     private RecyclerView topicView;
     private FloatingActionButton startTopicButton;
 
@@ -60,22 +62,14 @@ public class ForumFragment extends Fragment {
 
         topicModelItems = new ArrayList<>();
 
+        initializeTopicViewAdapter();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_forum, container, false);
-
-        topicViewAdapter = new TopicViewAdapter(R.layout.item_topic, topicModelItems, new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                int itemPosition = topicView.getChildLayoutPosition(view);
-                TopicModel topicModelItem = topicModelItems.get(itemPosition);
-
-                openTopicActivity(topicModelItem);
-            }
-        });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
@@ -98,9 +92,19 @@ public class ForumFragment extends Fragment {
             }
         });
 
-        loadTopicsFromDatabase();
-
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        topicViewAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        topicViewAdapter.stopListening();
     }
 
     private void openStartTopicDialog() {
@@ -124,7 +128,6 @@ public class ForumFragment extends Fragment {
                 final String uID = Generators.randomBasedGenerator().generate().toString();
                 final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username, timeStamp);
 
-                addTopicModelToView(topicModel);
                 addTopicToDatabase(topicModel);
                 openTopicActivity(topicModel);
             }
@@ -157,25 +160,45 @@ public class ForumFragment extends Fragment {
         startActivity(intent);
     }
 
-    private void addTopicModelToView(TopicModel topicModel) {
-        topicModelItems.add(topicModel);
-        topicViewAdapter.notifyDataSetChanged();
-    }
-
-    private void loadTopicsFromDatabase() {
-        DatabaseReference forumReference = database.getReference().child(Constants.DATABASE_FORUM_NODE);
-        forumReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void initializeTopicViewAdapter(){
+        Query query = database.getReference().child(Constants.DATABASE_FORUM_NODE);
+        FirebaseRecyclerOptions<TopicModel> options = new FirebaseRecyclerOptions.Builder<TopicModel>
+                ().setQuery(query, new SnapshotParser<TopicModel>() {
+            @NonNull
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot topicDataSnapshot : dataSnapshot.getChildren()) {
-                    TopicModel topicModel = topicDataSnapshot.getValue(TopicModel.class);
-                    addTopicModelToView(topicModel);
-                }
+            public TopicModel parseSnapshot(@NonNull DataSnapshot snapshot) {
+                return new TopicModel(snapshot.child(Constants.DATABASE_TOPIC_ID_NODE).getValue().toString(),
+                        snapshot.child(Constants.DATABASE_TITLE_NODE).getValue().toString(),
+                        snapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString(),
+                        snapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString(),
+                        snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
+                        snapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString());
+            }
+        }).build();
+
+        topicViewAdapter = new FirebaseRecyclerAdapter<TopicModel, TopicViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull TopicViewHolder holder, int position, @NonNull TopicModel topicModel) {
+                holder.setTitleText(topicModel.getTitle());
+                holder.setBodyText(topicModel.getBody());
+                holder.setUsernameText(topicModel.getUsername());
+                holder.setTimeStampText(topicModel.getTimeStamp());
+                holder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openTopicActivity(topicModel);
+                    }
+                });
             }
 
+            @NonNull
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public TopicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_topic, parent, false);
+
+                return new TopicViewHolder(view);
             }
-        });
+        };
     }
 }

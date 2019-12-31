@@ -234,16 +234,16 @@ public class ChatFragment extends Fragment {
     }
 
     private void addMessageToDatabase(ChatModel chatModel) {
-        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
+        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
 
-        DatabaseReference chatReference = messagesReference.child(
+        DatabaseReference chatReference = chatsReference.child(
                 ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
         chatReference.push().setValue(chatModel);
     }
 
     private void loadChatFromDatabase() {
-        DatabaseReference messagesReference = database.getReference().child(Constants.DATABASE_MESSAGES_NODE);
-        DatabaseReference chatReference = messagesReference.child(
+        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
+        DatabaseReference chatReference = chatsReference.child(
                 ChatIDCreator.getChatID(senderUser.getId(), receiverUser.getId()));
 
         chatReference.addListenerForSingleValueEvent(new ValueEventListener() {

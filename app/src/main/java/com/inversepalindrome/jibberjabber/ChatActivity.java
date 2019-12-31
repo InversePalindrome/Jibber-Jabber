@@ -61,6 +61,5 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.Prof
         transaction.replace(R.id.chat_layout, profileFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-        transaction.addToBackStack(null);
     }
 }

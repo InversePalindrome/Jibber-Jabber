@@ -17,12 +17,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.SnapshotParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -36,12 +40,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSelectedListener {
+public class TopicFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseUser currentUser;
     private OnPostSelectedListener postListener;
     private ArrayList<PostModel> postModelItems;
-    private PostViewAdapter postViewAdapter;
+    private FirebaseRecyclerAdapter postViewAdapter;
     private RecyclerView postView;
     private TopicModel topicModel;
     private TextView titleText;
@@ -62,14 +66,14 @@ public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSel
 
         Bundle bundle = getArguments();
         topicModel = bundle.getParcelable("topic");
+
+        initializePostViewAdapter(topicModel.getTopicID());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_topic, container, false);
-
-        postViewAdapter = new PostViewAdapter(R.layout.item_post, postModelItems, this);
 
         postView = view.findViewById(R.id.topic_post_view);
         titleText = view.findViewById(R.id.topic_title_text);
@@ -104,18 +108,39 @@ public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSel
                 PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName(), timeStamp);
 
                 addPostToDatabase(postModel);
-                addPostToView(postModel);
 
                 updateUIAfterPost();
             }
         });
 
-        loadPostsFromDatabase();
-
         return view;
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        postViewAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        postViewAdapter.stopListening();
+    }
+
+    public void setOnPostListener(OnPostSelectedListener postListener){
+        this.postListener = postListener;
+    }
+
+    private void addPostToDatabase(PostModel postModel) {
+        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
+        DatabaseReference topicReference = topicsReference.child(topicModel.getTopicID());
+
+        DatabaseReference postReference = topicReference.push();
+
+        postReference.setValue(postModel);
+    }
+
     public void onUsernameSelected(PostModel postModel) {
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         DatabaseReference userReference = usersReference.child(postModel.getSenderID());
@@ -133,24 +158,6 @@ public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSel
         });
     }
 
-    public void setOnPostListener(OnPostSelectedListener postListener){
-        this.postListener = postListener;
-    }
-
-    private void addPostToDatabase(PostModel postModel) {
-        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        DatabaseReference topicReference = topicsReference.child(topicModel.getTopicID());
-
-        DatabaseReference postReference = topicReference.push();
-
-        postReference.setValue(postModel);
-    }
-
-    private void addPostToView(PostModel postModel) {
-        postModelItems.add(postModel);
-        postViewAdapter.notifyDataSetChanged();
-    }
-
     private void updateUIAfterPost() {
         postEntry.setText("");
 
@@ -158,28 +165,44 @@ public class TopicFragment extends Fragment implements PostViewAdapter.OnPostSel
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void setupTopicPagination(){
+    private void initializePostViewAdapter(String topicID){
+         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
+         Query query = topicsReference.child(topicID);
 
-    }
+        FirebaseRecyclerOptions<PostModel> options = new FirebaseRecyclerOptions.Builder<PostModel>()
+                .setQuery(query, new SnapshotParser<PostModel>() {
+                    @NonNull
+                    @Override
+                    public PostModel parseSnapshot(@NonNull DataSnapshot snapshot) {
+                        return new PostModel(snapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString());
+                    }
+                }).build();
 
-    private void loadPostsFromDatabase() {
-        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        DatabaseReference topicReference = topicsReference.child(topicModel.getTopicID());
-
-        topicReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        postViewAdapter = new FirebaseRecyclerAdapter<PostModel, PostViewHolder>(options) {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    PostModel postModel = postSnapshot.getValue(PostModel.class);
-
-                    addPostToView(postModel);
-                }
+            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull PostModel postModel) {
+                holder.setBodyText(postModel.getBody());
+                holder.setUsernameText(postModel.getUsername());
+                holder.setTimeStampText(postModel.getTimeStamp());
+                holder.setUsernameOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onUsernameSelected(postModel);
+                    }
+                });
             }
 
+            @NonNull
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
+
+                return new PostViewHolder(view);
             }
-        });
+        };
     }
 
     public interface OnPostSelectedListener{

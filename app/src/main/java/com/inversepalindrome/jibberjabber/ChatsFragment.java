@@ -8,6 +8,7 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +18,21 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.SnapshotParser;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -41,8 +50,9 @@ public class ChatsFragment extends Fragment {
     private String senderID;
     private OpenChatListener listener;
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
     private ArrayList<UserModel> userModelItems;
-    private UserViewAdapter userViewAdapter;
+    private FirebaseRecyclerAdapter userViewAdapter;
     private EmptyRecyclerView userView;
     private TextView emptyStartChatText;
     private FloatingActionButton startChatButton;
@@ -52,39 +62,19 @@ public class ChatsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         userModelItems = new ArrayList<>();
 
         senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        initializeChatViewAdapter();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_chats, container, false);
-
-        userViewAdapter = new UserViewAdapter(R.layout.item_user, userModelItems, new OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                int itemPosition = userView.getChildLayoutPosition(view);
-                UserModel receiverUserModel = userModelItems.get(itemPosition);
-
-                DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-                DatabaseReference senderUserReference = usersReference.child(senderID);
-                senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
-
-                        listener.onOpenChat(senderUserModel, receiverUserModel);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
-            }
-        });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
@@ -106,10 +96,6 @@ public class ChatsFragment extends Fragment {
             @Override
             public void onDeleteClicked(int position) {
                 removeChatFromDatabase(userModelItems.get(position).getuID());
-
-                userModelItems.remove(position);
-                userViewAdapter.notifyItemRemoved(position);
-                userViewAdapter.notifyItemRangeChanged(position, userViewAdapter.getItemCount());
             }
         });
 
@@ -129,16 +115,26 @@ public class ChatsFragment extends Fragment {
             }
         });
 
-        loadChatFromDatabase();
-
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        userViewAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        userViewAdapter.stopListening();
     }
 
     void setOpenChatListener(OpenChatListener listener) {
         this.listener = listener;
     }
 
-    public void openStartChatDialog() {
+    private void openStartChatDialog() {
         AlertDialog.Builder startChatDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         startChatDialogBuilder.setTitle("Start Chat");
 
@@ -166,7 +162,7 @@ public class ChatsFragment extends Fragment {
                                             for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                                addChatToDatabase(receiverUserModel.getuID());
+                                                addChatToDatabase(receiverUserModel);
                                                 listener.onOpenChat(senderUserModel, receiverUserModel);
                                             }
                                         } else {
@@ -198,30 +194,36 @@ public class ChatsFragment extends Fragment {
         startChatDialog.show();
     }
 
-    private void addChatToDatabase(String receiverID) {
-        String chatID = ChatIDCreator.getChatID(senderID, receiverID);
-
-        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
-        DatabaseReference chatReference = chatsReference.child(chatID);
-
-        DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
-        membersReference.child(senderID).setValue(true);
-        membersReference.child(receiverID).setValue(true);
-
-        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
-
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
-        senderChatsReference.child(chatID).setValue(true);
-
-        DatabaseReference receiverChatsReference = usersChatsReference.child(receiverID);
-        receiverChatsReference.child(chatID).setValue(true);
-
+    private void addChatToDatabase(UserModel receiverUserModel) {
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-        DatabaseReference receiverReference = usersReference.child(receiverID);
-        receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference receiverUserReference = usersReference.child(receiverUserModel.getuID());
+        receiverUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                addUserModelToView(dataSnapshot);
+                UserModel receiverUserModel = dataSnapshot.getValue(UserModel.class);
+
+                DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+                DatabaseReference userChatsReference = usersChatsReference.child(senderID);
+                DatabaseReference userChatReference = userChatsReference.child(receiverUserModel.getuID());
+                userChatReference.setValue(receiverUserModel);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        DatabaseReference senderUserReference = usersReference.child(senderID);
+        senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
+
+                DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+                DatabaseReference userChatsReference = usersChatsReference.child(receiverUserModel.getuID());
+                DatabaseReference userChatReference = userChatsReference.child(senderUserModel.getuID());
+                userChatReference.setValue(senderUserModel);
             }
 
             @Override
@@ -233,65 +235,74 @@ public class ChatsFragment extends Fragment {
     private void removeChatFromDatabase(String receiverID) {
         String chatID = ChatIDCreator.getChatID(senderID, receiverID);
 
-        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
+        chatsReference.child(chatID).removeValue();
 
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
-        senderChatsReference.child(chatID).removeValue();
+        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
+        DatabaseReference userChatsReference = usersChatsReference.child(senderID);
+        userChatsReference.child(receiverID).removeValue();
     }
 
-    private void addUserModelToView(@NonNull DataSnapshot userDataSnapshot) {
-        userModelItems.add(userDataSnapshot.getValue(UserModel.class));
+    private void initializeChatViewAdapter(){
+        Query query = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE).child(senderID);
 
-        userViewAdapter.notifyDataSetChanged();
-    }
+        FirebaseRecyclerOptions<UserModel> options = new FirebaseRecyclerOptions.Builder<UserModel>().
+                setQuery(query, new SnapshotParser<UserModel>() {
+                    @NonNull
+                    @Override
+                    public UserModel parseSnapshot(@NonNull DataSnapshot snapshot) {
+                        return new UserModel(snapshot.child(Constants.DATABASE_UID_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_EMAIL_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_PROFILE_URI_NODE).getValue().toString(),
+                                snapshot.child(Constants.DATABASE_STATUS_NODE).getValue().toString());
+                    }
+                }).build();
 
-    private void loadChatFromDatabase() {
-        DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
-
-        DatabaseReference senderChatsReference = usersChatsReference.child(senderID);
-        senderChatsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        userViewAdapter = new FirebaseRecyclerAdapter<UserModel, UserViewHolder>(options) {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot chatDataSnapshot : dataSnapshot.getChildren()) {
-                    DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
-                    DatabaseReference chatReference = chatsReference.child(chatDataSnapshot.getKey());
+            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull UserModel userModel) {
+                holder.setUsernameText(userModel.getUsername());
 
-                    DatabaseReference membersReference = chatReference.child(Constants.DATABASE_MEMBERS_NODE);
-                    membersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
-                                String memberID = memberSnapshot.getKey();
+                StorageReference profileImageReference = storage.getReference()
+                        .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
 
-                                if (!memberID.equals(senderID)) {
-                                    DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-                                    DatabaseReference receiverReference = usersReference.child(memberID);
+                profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.get().load(uri).into(holder.getProfilePicture());
+                    }
+                });
 
-                                    receiverReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            addUserModelToView(dataSnapshot);
-                                        }
+                holder.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+                        DatabaseReference senderUserReference = usersReference.child(senderID);
+                        senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                                        }
-                                    });
-                                }
+                                listener.onOpenChat(senderUserModel, userModel);
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                        }
-                    });
-                }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                            }
+                        });
+                    }
+                });
             }
 
+            @NonNull
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false);
+
+                return new UserViewHolder(view);
             }
-        });
+        };
     }
 
     public interface OpenChatListener {
