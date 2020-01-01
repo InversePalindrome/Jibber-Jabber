@@ -9,13 +9,12 @@
 
     <com.inversepalindrome.jibberjabber.EmptyRecyclerView
         android:id="@+id/chats_user_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
     </com.inversepalindrome.jibberjabber.EmptyRecyclerView>
 
@@ -23,7 +22,7 @@
         android:id="@+id/chats_empty_start_chat_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="265dp"
+        android:layout_marginTop="264dp"
         android:clickable="true"
         android:focusable="true"
         android:text="@string/empty_messages"
@@ -37,8 +36,8 @@
         android:id="@+id/chats_start_chat_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="35dp"
-        android:layout_marginBottom="75dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="78dp"
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/start_message_icon"

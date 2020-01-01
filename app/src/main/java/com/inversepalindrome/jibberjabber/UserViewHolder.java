@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class UserViewHolder extends RecyclerView.ViewHolder{
+public class UserViewHolder extends RecyclerView.ViewHolder {
     private ConstraintLayout layout;
     private TextView usernameText;
     private CircleImageView profilePicture;
@@ -28,15 +28,15 @@ public class UserViewHolder extends RecyclerView.ViewHolder{
         profilePicture = itemView.findViewById(R.id.user_item_profile_image);
     }
 
-    public CircleImageView getProfilePicture(){
+    public CircleImageView getProfilePicture() {
         return this.profilePicture;
     }
 
-    public void setUsernameText(String username){
+    public void setUsernameText(String username) {
         this.usernameText.setText(username);
     }
 
-    public void setOnClickListener(View.OnClickListener onClickListener){
+    public void setOnClickListener(View.OnClickListener onClickListener) {
         layout.setOnClickListener(onClickListener);
     }
 }

@@ -39,5 +39,7 @@
     <string name="body">Body</string>
     <string name="post">Post</string>
     <string name="cancel">Cancel</string>
-    <string name="write_new_post">Write new post...</string>
+    <string name="item_search_chat">Search Chat</string>
+    <string name="search_chat">Search chat&#8230;</string>
+    <string name="write_new_post">Write new post&#8230;</string>
 </resources>

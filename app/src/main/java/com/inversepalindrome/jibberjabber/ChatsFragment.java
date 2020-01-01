@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,44 +75,12 @@ public class ChatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_chats, container, false);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
         userView = view.findViewById(R.id.chats_user_view);
         startChatButton = view.findViewById(R.id.chats_start_chat_button);
         emptyStartChatText = view.findViewById(R.id.chats_empty_start_chat_text);
 
-        userView.setLayoutManager(linearLayoutManager);
-        userView.setItemAnimator(new DefaultItemAnimator());
-        userView.setAdapter(userViewAdapter);
-        userView.setEmptyView(emptyStartChatText);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(userView.getContext(),
-                linearLayoutManager.getOrientation());
-
-        userView.addItemDecoration(dividerItemDecoration);
-
-        UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
-            @Override
-            public void onDeleteClicked(int position) {
-                removeChatFromDatabase(userModelItems.get(position).getuID());
-            }
-        });
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
-        itemTouchHelper.attachToRecyclerView(userView);
-
-        startChatButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openStartChatDialog();
-            }
-        });
-        emptyStartChatText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openStartChatDialog();
-            }
-        });
+        setupUserView();
+        setupUserButtonCallbacks();
 
         return view;
     }
@@ -243,21 +210,11 @@ public class ChatsFragment extends Fragment {
         userChatsReference.child(receiverID).removeValue();
     }
 
-    private void initializeChatViewAdapter(){
+    private void initializeChatViewAdapter() {
         Query query = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE).child(senderID);
 
         FirebaseRecyclerOptions<UserModel> options = new FirebaseRecyclerOptions.Builder<UserModel>().
-                setQuery(query, new SnapshotParser<UserModel>() {
-                    @NonNull
-                    @Override
-                    public UserModel parseSnapshot(@NonNull DataSnapshot snapshot) {
-                        return new UserModel(snapshot.child(Constants.DATABASE_UID_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_EMAIL_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_PROFILE_URI_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_STATUS_NODE).getValue().toString());
-                    }
-                }).build();
+                setQuery(query, UserModel.class).build();
 
         userViewAdapter = new FirebaseRecyclerAdapter<UserModel, UserViewHolder>(options) {
             @Override
@@ -303,6 +260,45 @@ public class ChatsFragment extends Fragment {
                 return new UserViewHolder(view);
             }
         };
+    }
+
+    private void setupUserView(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+
+        userView.setLayoutManager(linearLayoutManager);
+        userView.setItemAnimator(new DefaultItemAnimator());
+        userView.setAdapter(userViewAdapter);
+        userView.setEmptyView(emptyStartChatText);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(userView.getContext(),
+                linearLayoutManager.getOrientation());
+
+        userView.addItemDecoration(dividerItemDecoration);
+
+        UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
+            @Override
+            public void onDeleteClicked(int position) {
+                removeChatFromDatabase(userModelItems.get(position).getuID());
+            }
+        });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
+        itemTouchHelper.attachToRecyclerView(userView);
+    }
+
+    private void setupUserButtonCallbacks(){
+        startChatButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openStartChatDialog();
+            }
+        });
+        emptyStartChatText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openStartChatDialog();
+            }
+        });
     }
 
     public interface OpenChatListener {

@@ -93,47 +93,11 @@ public class SettingsFragment extends Fragment {
         changeEmailButton = view.findViewById(R.id.settings_change_email_button);
         changePasswordButton = view.findViewById(R.id.settings_change_password_button);
         logOutButton = view.findViewById(R.id.settings_log_out_button);
-
         galleryButton = view.findViewById(R.id.settings_gallery_button);
         cameraButton = view.findViewById(R.id.settings_camera_button);
         statusButton = view.findViewById(R.id.settings_edit_status_button);
 
-        changeEmailButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openChangeEmailDialog();
-            }
-        });
-        changePasswordButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openChangePasswordDialog();
-            }
-        });
-        statusButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openChangeStatusDialog();
-            }
-        });
-        logOutButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onLogOut();
-            }
-        });
-        galleryButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
-        cameraButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCamera();
-            }
-        });
+        setupSettingsButtonCallbacks();
 
         usernameText.setText(user.getDisplayName());
 
@@ -396,6 +360,45 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void setupSettingsButtonCallbacks(){
+        changeEmailButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangeEmailDialog();
+            }
+        });
+        changePasswordButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangePasswordDialog();
+            }
+        });
+        statusButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChangeStatusDialog();
+            }
+        });
+        logOutButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onLogOut();
+            }
+        });
+        galleryButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+        cameraButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCamera();
             }
         });
     }

@@ -18,11 +18,9 @@ import android.widget.EditText;
 import com.fasterxml.uuid.Generators;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -71,26 +69,11 @@ public class ForumFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_forum, container, false);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
         topicView = view.findViewById(R.id.forum_topic_view);
         startTopicButton = view.findViewById(R.id.forum_start_topic_button);
 
-        topicView.setLayoutManager(linearLayoutManager);
-        topicView.setItemAnimator(new DefaultItemAnimator());
-        topicView.setAdapter(topicViewAdapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(topicView.getContext(),
-                linearLayoutManager.getOrientation());
-
-        topicView.addItemDecoration(dividerItemDecoration);
-
-        startTopicButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openStartTopicDialog();
-            }
-        });
+        setupTopicView();
+        setupTopicCallbacks();
 
         return view;
     }
@@ -160,21 +143,10 @@ public class ForumFragment extends Fragment {
         startActivity(intent);
     }
 
-    private void initializeTopicViewAdapter(){
+    private void initializeTopicViewAdapter() {
         Query query = database.getReference().child(Constants.DATABASE_FORUM_NODE);
         FirebaseRecyclerOptions<TopicModel> options = new FirebaseRecyclerOptions.Builder<TopicModel>
-                ().setQuery(query, new SnapshotParser<TopicModel>() {
-            @NonNull
-            @Override
-            public TopicModel parseSnapshot(@NonNull DataSnapshot snapshot) {
-                return new TopicModel(snapshot.child(Constants.DATABASE_TOPIC_ID_NODE).getValue().toString(),
-                        snapshot.child(Constants.DATABASE_TITLE_NODE).getValue().toString(),
-                        snapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString(),
-                        snapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString(),
-                        snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
-                        snapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString());
-            }
-        }).build();
+                ().setQuery(query, TopicModel.class).build();
 
         topicViewAdapter = new FirebaseRecyclerAdapter<TopicModel, TopicViewHolder>(options) {
             @Override
@@ -200,5 +172,27 @@ public class ForumFragment extends Fragment {
                 return new TopicViewHolder(view);
             }
         };
+    }
+
+    private void setupTopicView(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+
+        topicView.setLayoutManager(linearLayoutManager);
+        topicView.setItemAnimator(new DefaultItemAnimator());
+        topicView.setAdapter(topicViewAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(topicView.getContext(),
+                linearLayoutManager.getOrientation());
+
+        topicView.addItemDecoration(dividerItemDecoration);
+    }
+
+    private void setupTopicCallbacks(){
+        startTopicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openStartTopicDialog();
+            }
+        });
     }
 }

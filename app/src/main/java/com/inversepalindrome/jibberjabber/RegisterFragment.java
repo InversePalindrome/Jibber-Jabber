@@ -59,12 +59,7 @@ public class RegisterFragment extends Fragment {
         rePasswordEntry = view.findViewById(R.id.register_repassword_entry);
         registerButton = view.findViewById(R.id.register_button);
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
+        setupRegisterCallbacks();
 
         return view;
     }
@@ -134,6 +129,15 @@ public class RegisterFragment extends Fragment {
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).setValue(userModel);
+    }
+
+    private void setupRegisterCallbacks(){
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerUser();
+            }
+        });
     }
 
     public interface RegisteredListener {

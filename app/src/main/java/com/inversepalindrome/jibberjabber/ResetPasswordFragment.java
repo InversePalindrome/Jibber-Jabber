@@ -45,12 +45,7 @@ public class ResetPasswordFragment extends Fragment {
         emailEntry = view.findViewById(R.id.reset_password_email_entry);
         resetPasswordButton = view.findViewById(R.id.reset_password_button);
 
-        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetPassword();
-            }
-        });
+        setupResetPasswordCallbacks();
 
         return view;
     }
@@ -76,6 +71,15 @@ public class ResetPasswordFragment extends Fragment {
                 } else {
                     Toast.makeText(getContext(), "Failed to send reset password email!", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+    }
+
+    private void setupResetPasswordCallbacks(){
+        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetPassword();
             }
         });
     }

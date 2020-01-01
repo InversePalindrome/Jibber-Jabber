@@ -52,6 +52,13 @@ public class ProfileFragment extends Fragment {
         statusText = view.findViewById(R.id.profile_status_text);
         emailText = view.findViewById(R.id.profile_email_text);
 
+        setupProfilePicture();
+        setupProfileInformation();
+
+        return view;
+    }
+
+    private void setupProfilePicture(){
         StorageReference profileImageReference = storage.getReference()
                 .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
 
@@ -61,11 +68,11 @@ public class ProfileFragment extends Fragment {
                 Picasso.get().load(uri).into(profileImage);
             }
         });
+    }
 
+    private void setupProfileInformation(){
         usernameText.setText(userModel.getUsername());
         statusText.setText(userModel.getStatus());
         emailText.setText(userModel.getEmail());
-
-        return view;
     }
 }

@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -83,35 +82,9 @@ public class TopicFragment extends Fragment {
         postEntry = view.findViewById(R.id.topic_post_entry);
         postButton = view.findViewById(R.id.topic_post_button);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
-        postView.setLayoutManager(linearLayoutManager);
-        postView.setItemAnimator(new DefaultItemAnimator());
-        postView.setAdapter(postViewAdapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(postView.getContext(),
-                linearLayoutManager.getOrientation());
-
-        postView.addItemDecoration(dividerItemDecoration);
-
-        titleText.setText(topicModel.getTitle());
-        bodyText.setText(topicModel.getBody());
-        usernameText.setText(topicModel.getUsername());
-        timeStampText.setText(topicModel.getTimeStamp());
-
-        postButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String post = postEntry.getText().toString();
-                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
-
-                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName(), timeStamp);
-
-                addPostToDatabase(postModel);
-
-                updateUIAfterPost();
-            }
-        });
+        setupPostView();
+        setupTopicView();
+        setupPostButtonCallbacks();
 
         return view;
     }
@@ -128,7 +101,7 @@ public class TopicFragment extends Fragment {
         postViewAdapter.stopListening();
     }
 
-    public void setOnPostListener(OnPostSelectedListener postListener){
+    public void setOnPostListener(OnPostSelectedListener postListener) {
         this.postListener = postListener;
     }
 
@@ -165,21 +138,12 @@ public class TopicFragment extends Fragment {
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void initializePostViewAdapter(String topicID){
-         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-         Query query = topicsReference.child(topicID);
+    private void initializePostViewAdapter(String topicID) {
+        DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
+        Query query = topicsReference.child(topicID);
 
         FirebaseRecyclerOptions<PostModel> options = new FirebaseRecyclerOptions.Builder<PostModel>()
-                .setQuery(query, new SnapshotParser<PostModel>() {
-                    @NonNull
-                    @Override
-                    public PostModel parseSnapshot(@NonNull DataSnapshot snapshot) {
-                        return new PostModel(snapshot.child(Constants.DATABASE_BODY_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_USERNAME_NODE).getValue().toString(),
-                                snapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString());
-                    }
-                }).build();
+                .setQuery(query, PostModel.class).build();
 
         postViewAdapter = new FirebaseRecyclerAdapter<PostModel, PostViewHolder>(options) {
             @Override
@@ -205,7 +169,44 @@ public class TopicFragment extends Fragment {
         };
     }
 
-    public interface OnPostSelectedListener{
+    private void setupPostView(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+
+        postView.setLayoutManager(linearLayoutManager);
+        postView.setItemAnimator(new DefaultItemAnimator());
+        postView.setAdapter(postViewAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(postView.getContext(),
+                linearLayoutManager.getOrientation());
+
+        postView.addItemDecoration(dividerItemDecoration);
+    }
+
+    private void setupTopicView(){
+        titleText.setText(topicModel.getTitle());
+        bodyText.setText(topicModel.getBody());
+        usernameText.setText(topicModel.getUsername());
+        timeStampText.setText(topicModel.getTimeStamp());
+    }
+
+    private void setupPostButtonCallbacks(){
+        postButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String post = postEntry.getText().toString();
+                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
+
+                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName(), timeStamp);
+
+                addPostToDatabase(postModel);
+
+                updateUIAfterPost();
+            }
+        });
+
+    }
+
+    public interface OnPostSelectedListener {
         void onUsernameSelected(UserModel userModel);
     }
 }

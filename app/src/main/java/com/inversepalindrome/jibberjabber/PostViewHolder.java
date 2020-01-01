@@ -13,7 +13,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-public class PostViewHolder extends RecyclerView.ViewHolder{
+public class PostViewHolder extends RecyclerView.ViewHolder {
     private TextView bodyText;
     private TextView usernameText;
     private TextView timeStampText;
@@ -26,19 +26,19 @@ public class PostViewHolder extends RecyclerView.ViewHolder{
         timeStampText = itemView.findViewById(R.id.post_timestamp_text);
     }
 
-    public void setBodyText(String bodyText){
+    public void setBodyText(String bodyText) {
         this.bodyText.setText(bodyText);
     }
 
-    public void setUsernameText(String username){
+    public void setUsernameText(String username) {
         this.usernameText.setText(username);
     }
 
-    public void setTimeStampText(String timeStamp){
+    public void setTimeStampText(String timeStamp) {
         this.timeStampText.setText(timeStamp);
     }
 
-    public void setUsernameOnClickListener(View.OnClickListener listener){
+    public void setUsernameOnClickListener(View.OnClickListener listener) {
         this.usernameText.setOnClickListener(listener);
     }
 }

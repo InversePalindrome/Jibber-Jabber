@@ -63,24 +63,7 @@ public class LoginFragment extends Fragment {
         registerAccountText = view.findViewById(R.id.login_register_label);
         forgotPasswordText = view.findViewById(R.id.login_forgot_password_text);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
-        registerAccountText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onBeginRegistration();
-            }
-        });
-        forgotPasswordText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onForgotPassword();
-            }
-        });
+        setupButtonCallbacks();
 
         return view;
     }
@@ -152,6 +135,27 @@ public class LoginFragment extends Fragment {
 
         DatabaseReference FCMTokensReference = database.getReference().child(Constants.DATABASE_FCM_TOKENS_NODE);
         FCMTokensReference.child(uID).setValue(FCMToken);
+    }
+
+    private void setupButtonCallbacks(){
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginUser();
+            }
+        });
+        registerAccountText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onBeginRegistration();
+            }
+        });
+        forgotPasswordText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onForgotPassword();
+            }
+        });
     }
 
     public interface LoginSelectedListener {
