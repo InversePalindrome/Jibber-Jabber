@@ -8,7 +8,6 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.fasterxml.uuid.Generators;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,9 +23,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -40,9 +35,9 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ForumFragment extends Fragment {
     private String senderID;
     private String username;
+    private OpenTopicListener listener;
     private FirebaseDatabase database;
-    private ArrayList<TopicModel> topicModelItems;
-    private FirebaseRecyclerAdapter topicViewAdapter;
+    private TopicViewAdapter topicViewAdapter;
     private RecyclerView topicView;
     private FloatingActionButton startTopicButton;
 
@@ -58,10 +53,7 @@ public class ForumFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
 
-        topicModelItems = new ArrayList<>();
-
         initializeTopicViewAdapter();
-
     }
 
     @Override
@@ -90,6 +82,10 @@ public class ForumFragment extends Fragment {
         topicViewAdapter.stopListening();
     }
 
+    public void setOpenTopicListener(OpenTopicListener listener) {
+        this.listener = listener;
+    }
+
     private void openStartTopicDialog() {
         AlertDialog.Builder startTopicDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
         startTopicDialogBuilder.setTitle("Start Topic");
@@ -112,7 +108,7 @@ public class ForumFragment extends Fragment {
                 final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username, timeStamp);
 
                 addTopicToDatabase(topicModel);
-                openTopicActivity(topicModel);
+                listener.onOpenTopic(topicModel);
             }
         });
         startTopicDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -137,44 +133,15 @@ public class ForumFragment extends Fragment {
 
     }
 
-    private void openTopicActivity(TopicModel topicModel) {
-        Intent intent = new Intent(getActivity(), TopicActivity.class);
-        intent.putExtra("topic", topicModel);
-        startActivity(intent);
-    }
-
     private void initializeTopicViewAdapter() {
         Query query = database.getReference().child(Constants.DATABASE_FORUM_NODE);
         FirebaseRecyclerOptions<TopicModel> options = new FirebaseRecyclerOptions.Builder<TopicModel>
                 ().setQuery(query, TopicModel.class).build();
 
-        topicViewAdapter = new FirebaseRecyclerAdapter<TopicModel, TopicViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull TopicViewHolder holder, int position, @NonNull TopicModel topicModel) {
-                holder.setTitleText(topicModel.getTitle());
-                holder.setBodyText(topicModel.getBody());
-                holder.setUsernameText(topicModel.getUsername());
-                holder.setTimeStampText(topicModel.getTimeStamp());
-                holder.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        openTopicActivity(topicModel);
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public TopicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_topic, parent, false);
-
-                return new TopicViewHolder(view);
-            }
-        };
+        topicViewAdapter = new TopicViewAdapter(options, listener);
     }
 
-    private void setupTopicView(){
+    private void setupTopicView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         topicView.setLayoutManager(linearLayoutManager);
@@ -187,12 +154,16 @@ public class ForumFragment extends Fragment {
         topicView.addItemDecoration(dividerItemDecoration);
     }
 
-    private void setupTopicCallbacks(){
+    private void setupTopicCallbacks() {
         startTopicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openStartTopicDialog();
             }
         });
+    }
+
+    public interface OpenTopicListener {
+        void onOpenTopic(TopicModel topicModel);
     }
 }

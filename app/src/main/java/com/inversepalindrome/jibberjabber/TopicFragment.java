@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,8 +26,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,9 +39,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TopicFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseUser currentUser;
-    private OnPostSelectedListener postListener;
-    private ArrayList<PostModel> postModelItems;
-    private FirebaseRecyclerAdapter postViewAdapter;
+    private OnPostSelectedListener listener;
+    private PostViewAdapter postViewAdapter;
     private RecyclerView postView;
     private TopicModel topicModel;
     private TextView titleText;
@@ -60,8 +56,6 @@ public class TopicFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        postModelItems = new ArrayList<>();
 
         Bundle bundle = getArguments();
         topicModel = bundle.getParcelable("topic");
@@ -84,7 +78,7 @@ public class TopicFragment extends Fragment {
 
         setupPostView();
         setupTopicView();
-        setupPostButtonCallbacks();
+        setupTopicCallbacks();
 
         return view;
     }
@@ -102,7 +96,7 @@ public class TopicFragment extends Fragment {
     }
 
     public void setOnPostListener(OnPostSelectedListener postListener) {
-        this.postListener = postListener;
+        this.listener = postListener;
     }
 
     private void addPostToDatabase(PostModel postModel) {
@@ -112,23 +106,6 @@ public class TopicFragment extends Fragment {
         DatabaseReference postReference = topicReference.push();
 
         postReference.setValue(postModel);
-    }
-
-    public void onUsernameSelected(PostModel postModel) {
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-        DatabaseReference userReference = usersReference.child(postModel.getSenderID());
-        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                UserModel userModel = dataSnapshot.getValue(UserModel.class);
-
-                postListener.onUsernameSelected(userModel);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
     }
 
     private void updateUIAfterPost() {
@@ -145,31 +122,10 @@ public class TopicFragment extends Fragment {
         FirebaseRecyclerOptions<PostModel> options = new FirebaseRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class).build();
 
-        postViewAdapter = new FirebaseRecyclerAdapter<PostModel, PostViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull PostModel postModel) {
-                holder.setBodyText(postModel.getBody());
-                holder.setUsernameText(postModel.getUsername());
-                holder.setTimeStampText(postModel.getTimeStamp());
-                holder.setUsernameOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onUsernameSelected(postModel);
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
-
-                return new PostViewHolder(view);
-            }
-        };
+        postViewAdapter = new PostViewAdapter(options, listener);
     }
 
-    private void setupPostView(){
+    private void setupPostView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         postView.setLayoutManager(linearLayoutManager);
@@ -182,14 +138,33 @@ public class TopicFragment extends Fragment {
         postView.addItemDecoration(dividerItemDecoration);
     }
 
-    private void setupTopicView(){
+    private void setupTopicView() {
         titleText.setText(topicModel.getTitle());
         bodyText.setText(topicModel.getBody());
         usernameText.setText(topicModel.getUsername());
         timeStampText.setText(topicModel.getTimeStamp());
     }
 
-    private void setupPostButtonCallbacks(){
+    private void setupTopicCallbacks() {
+        usernameText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
+                DatabaseReference userReference = usersReference.child(topicModel.getSenderID());
+                userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        UserModel userModel = dataSnapshot.getValue(UserModel.class);
+
+                        listener.onUsernameSelected(userModel);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            }
+        });
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,7 +178,6 @@ public class TopicFragment extends Fragment {
                 updateUIAfterPost();
             }
         });
-
     }
 
     public interface OnPostSelectedListener {

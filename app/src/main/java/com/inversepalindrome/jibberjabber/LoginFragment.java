@@ -137,7 +137,7 @@ public class LoginFragment extends Fragment {
         FCMTokensReference.child(uID).setValue(FCMToken);
     }
 
-    private void setupButtonCallbacks(){
+    private void setupButtonCallbacks() {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

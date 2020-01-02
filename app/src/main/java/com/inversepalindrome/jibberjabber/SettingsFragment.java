@@ -364,7 +364,7 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    private void setupSettingsButtonCallbacks(){
+    private void setupSettingsButtonCallbacks() {
         changeEmailButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 
 public class MainActivity extends AppCompatActivity implements
-        ChatsFragment.OpenChatListener, SettingsFragment.LogOutSelectedListener {
+        ForumFragment.OpenTopicListener, ChatsFragment.OpenChatListener, SettingsFragment.LogOutSelectedListener {
     private FirebaseAuth auth;
     private BottomNavigationView navigationView;
 
@@ -61,13 +61,23 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof ChatsFragment) {
+        if (fragment instanceof ForumFragment) {
+            ForumFragment forumFragment = (ForumFragment) fragment;
+            forumFragment.setOpenTopicListener(this);
+        } else if (fragment instanceof ChatsFragment) {
             ChatsFragment chatsFragment = (ChatsFragment) fragment;
             chatsFragment.setOpenChatListener(this);
         } else if (fragment instanceof SettingsFragment) {
             SettingsFragment settingsFragment = (SettingsFragment) fragment;
             settingsFragment.setLogOutSelectedListener(this);
         }
+    }
+
+    @Override
+    public void onOpenTopic(TopicModel topicModel) {
+        Intent intent = new Intent(MainActivity.this, TopicActivity.class);
+        intent.putExtra("topic", topicModel);
+        startActivity(intent);
     }
 
     @Override

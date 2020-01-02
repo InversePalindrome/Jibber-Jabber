@@ -131,7 +131,7 @@ public class RegisterFragment extends Fragment {
         usersReference.child(user.getUid()).setValue(userModel);
     }
 
-    private void setupRegisterCallbacks(){
+    private void setupRegisterCallbacks() {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

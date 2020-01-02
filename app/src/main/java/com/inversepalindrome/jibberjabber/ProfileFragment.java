@@ -58,7 +58,7 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    private void setupProfilePicture(){
+    private void setupProfilePicture() {
         StorageReference profileImageReference = storage.getReference()
                 .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
 
@@ -70,7 +70,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void setupProfileInformation(){
+    private void setupProfileInformation() {
         usernameText.setText(userModel.getUsername());
         statusText.setText(userModel.getStatus());
         emailText.setText(userModel.getEmail());

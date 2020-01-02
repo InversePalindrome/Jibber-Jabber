@@ -75,7 +75,7 @@ public class ResetPasswordFragment extends Fragment {
         });
     }
 
-    private void setupResetPasswordCallbacks(){
+    private void setupResetPasswordCallbacks() {
         resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

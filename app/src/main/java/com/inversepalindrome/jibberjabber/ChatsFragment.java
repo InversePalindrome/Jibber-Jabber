@@ -8,7 +8,6 @@ https://inversepalindrome.com/
 package com.inversepalindrome.jibberjabber;
 
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -29,11 +26,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,15 +35,14 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class ChatsFragment extends Fragment {
     private String senderID;
     private OpenChatListener listener;
     private FirebaseDatabase database;
-    private FirebaseStorage storage;
-    private ArrayList<UserModel> userModelItems;
-    private FirebaseRecyclerAdapter userViewAdapter;
+    private UserViewAdapter userViewAdapter;
     private EmptyRecyclerView userView;
     private TextView emptyStartChatText;
     private FloatingActionButton startChatButton;
@@ -61,9 +52,6 @@ public class ChatsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
-
-        userModelItems = new ArrayList<>();
 
         senderID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -129,7 +117,7 @@ public class ChatsFragment extends Fragment {
                                             for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                                                 UserModel receiverUserModel = childDataSnapshot.getValue(UserModel.class);
 
-                                                addChatToDatabase(receiverUserModel);
+                                                addChatToDatabase(senderUserModel, receiverUserModel);
                                                 listener.onOpenChat(senderUserModel, receiverUserModel);
                                             }
                                         } else {
@@ -161,53 +149,15 @@ public class ChatsFragment extends Fragment {
         startChatDialog.show();
     }
 
-    private void addChatToDatabase(UserModel receiverUserModel) {
-        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-        DatabaseReference receiverUserReference = usersReference.child(receiverUserModel.getuID());
-        receiverUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                UserModel receiverUserModel = dataSnapshot.getValue(UserModel.class);
-
-                DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
-                DatabaseReference userChatsReference = usersChatsReference.child(senderID);
-                DatabaseReference userChatReference = userChatsReference.child(receiverUserModel.getuID());
-                userChatReference.setValue(receiverUserModel);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        DatabaseReference senderUserReference = usersReference.child(senderID);
-        senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
-
-                DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
-                DatabaseReference userChatsReference = usersChatsReference.child(receiverUserModel.getuID());
-                DatabaseReference userChatReference = userChatsReference.child(senderUserModel.getuID());
-                userChatReference.setValue(senderUserModel);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-    }
-
-    private void removeChatFromDatabase(String receiverID) {
-        String chatID = ChatIDCreator.getChatID(senderID, receiverID);
-
-        DatabaseReference chatsReference = database.getReference().child(Constants.DATABASE_CHATS_NODE);
-        chatsReference.child(chatID).removeValue();
-
+    private void addChatToDatabase(UserModel senderUserModel, UserModel receiverUserModel) {
         DatabaseReference usersChatsReference = database.getReference().child(Constants.DATABASE_USERS_CHATS_NODE);
-        DatabaseReference userChatsReference = usersChatsReference.child(senderID);
-        userChatsReference.child(receiverID).removeValue();
+        DatabaseReference senderUserChatsReference = usersChatsReference.child(senderID);
+        DatabaseReference senderUserChatReference = senderUserChatsReference.child(receiverUserModel.getuID());
+        senderUserChatReference.setValue(receiverUserModel);
+
+        DatabaseReference receiverUserChatsReference = usersChatsReference.child(receiverUserModel.getuID());
+        DatabaseReference receiverUserChatReference = receiverUserChatsReference.child(senderUserModel.getuID());
+        receiverUserChatReference.setValue(senderUserModel);
     }
 
     private void initializeChatViewAdapter() {
@@ -216,53 +166,10 @@ public class ChatsFragment extends Fragment {
         FirebaseRecyclerOptions<UserModel> options = new FirebaseRecyclerOptions.Builder<UserModel>().
                 setQuery(query, UserModel.class).build();
 
-        userViewAdapter = new FirebaseRecyclerAdapter<UserModel, UserViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull UserModel userModel) {
-                holder.setUsernameText(userModel.getUsername());
-
-                StorageReference profileImageReference = storage.getReference()
-                        .child(Constants.STORAGE_IMAGES_NODE).child(userModel.getProfileURI());
-
-                profileImageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get().load(uri).into(holder.getProfilePicture());
-                    }
-                });
-
-                holder.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
-                        DatabaseReference senderUserReference = usersReference.child(senderID);
-                        senderUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                UserModel senderUserModel = dataSnapshot.getValue(UserModel.class);
-
-                                listener.onOpenChat(senderUserModel, userModel);
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                            }
-                        });
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false);
-
-                return new UserViewHolder(view);
-            }
-        };
+        userViewAdapter = new UserViewAdapter(options, senderID, listener);
     }
 
-    private void setupUserView(){
+    private void setupUserView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         userView.setLayoutManager(linearLayoutManager);
@@ -275,18 +182,23 @@ public class ChatsFragment extends Fragment {
 
         userView.addItemDecoration(dividerItemDecoration);
 
-        UserItemCallback userItemCallback = new UserItemCallback(getContext(), new UserItemActions() {
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public void onDeleteClicked(int position) {
-                removeChatFromDatabase(userModelItems.get(position).getuID());
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                userViewAdapter.deleteUser(viewHolder.getAdapterPosition());
             }
         });
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(userItemCallback);
         itemTouchHelper.attachToRecyclerView(userView);
     }
 
-    private void setupUserButtonCallbacks(){
+    private void setupUserButtonCallbacks() {
         startChatButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

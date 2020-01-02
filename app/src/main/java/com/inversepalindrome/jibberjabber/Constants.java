@@ -19,7 +19,6 @@ public class Constants {
     public static final String DATABASE_TOPICS_NODE = "topics";
     public static final String DATABASE_USERS_NODE = "users";
     public static final String DATABASE_FCM_TOKENS_NODE = "fcm_tokens";
-    public static final String DATABASE_MEMBERS_NODE = "members";
     public static final String DATABASE_MESSAGE_NODE = "message";
     public static final String DATABASE_UID_NODE = "uID";
     public static final String DATABASE_SENDER_NODE = "senderID";
