@@ -51,7 +51,7 @@ public class MessagingService extends FirebaseMessagingService {
 
             notificationChannel.setDescription("Message Notifications");
             notificationChannel.enableLights(true);
-            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            notificationChannel.setVibrationPattern(new long[]{0, 500, 250});
             notificationChannel.enableVibration(true);
 
             notificationManager.createNotificationChannel(notificationChannel);
@@ -71,8 +71,9 @@ public class MessagingService extends FirebaseMessagingService {
                 UserModel senderUserModel = dataSnapshot.child(senderID).getValue(UserModel.class);
                 UserModel receiverUserModel = dataSnapshot.child(receiverID).getValue(UserModel.class);
 
-                intent.putExtra("sender", senderUserModel);
-                intent.putExtra("receiver", receiverUserModel);
+                //Sender and receiver interchanged when opening in new device
+                intent.putExtra("sender", receiverUserModel);
+                intent.putExtra("receiver", senderUserModel);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 

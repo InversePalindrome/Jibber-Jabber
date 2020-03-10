@@ -12,12 +12,12 @@ public class ChatModel {
     private String senderID;
     private String receiverID;
     private String message;
-    private String timeStamp;
+    private Long timeStamp;
 
     public ChatModel() {
     }
 
-    public ChatModel(String senderID, String receiverID, String message, String timeStamp) {
+    public ChatModel(String senderID, String receiverID, String message, Long timeStamp) {
         this.senderID = senderID;
         this.receiverID = receiverID;
         this.message = message;
@@ -48,11 +48,11 @@ public class ChatModel {
         this.message = message;
     }
 
-    public String getTimeStamp() {
+    public Long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

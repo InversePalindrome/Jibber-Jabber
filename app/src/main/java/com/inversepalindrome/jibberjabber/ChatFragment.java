@@ -107,23 +107,22 @@ public class ChatFragment extends Fragment {
         chatView.setOnClickSendButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Message message = new Message.Builder()
-                        .setUser(senderUser)
-                        .setRight(true)
-                        .setText(chatView.getInputText())
-                        .hideIcon(true)
-                        .build();
+                String inputMessage = chatView.getInputText();
+                if (inputMessage.isEmpty()) {
+                    Toast.makeText(getContext(), "Message can't be empty!", Toast.LENGTH_SHORT).show();
+                } else {
+                    final Long tsLong = System.currentTimeMillis();
+                    Calendar timeStamp = Calendar.getInstance();
+                    timeStamp.setTimeInMillis(tsLong);
 
-                chatView.send(message);
-                chatView.setInputText("");
+                    chatView.send(getSenderMessage(inputMessage, timeStamp));
+                    chatView.setInputText("");
 
-                final Long tsLong = System.currentTimeMillis() / 1000;
-                final String timeStamp = tsLong.toString();
+                    ChatModel chatModel = new ChatModel(senderUser.getId(), receiverUser.getId(), inputMessage, tsLong);
 
-                ChatModel chatModel = new ChatModel(senderUser.getId(), receiverUser.getId(), message.getText(), timeStamp);
-
-                addMessageToDatabase(chatModel);
-                sendNotificationToReceiver(chatModel);
+                    addMessageToDatabase(chatModel);
+                    sendNotificationToReceiver(chatModel);
+                }
             }
         });
     }
@@ -218,7 +217,7 @@ public class ChatFragment extends Fragment {
                     }
                 };
 
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+                RequestQueueSingleton.getInstance(getContext()).addToRequestQueue(jsonObjectRequest);
             }
 
             @Override
@@ -255,28 +254,12 @@ public class ChatFragment extends Fragment {
                     final String timeStamp = childDataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
 
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(Long.parseLong(timeStamp) * 1000);
+                    calendar.setTimeInMillis(Long.parseLong(timeStamp));
 
                     if (senderUser.getId().equals(senderID)) {
-                        Message message = new Message.Builder()
-                                .setUser(senderUser)
-                                .setRight(true)
-                                .setText(messageText)
-                                .setSendTime(calendar)
-                                .hideIcon(true)
-                                .build();
-
-                        chatView.send(message);
+                        chatView.send(getSenderMessage(messageText, calendar));
                     } else {
-                        Message message = new Message.Builder()
-                                .setUser(receiverUser)
-                                .setRight(false)
-                                .setText(messageText)
-                                .setSendTime(calendar)
-                                .hideIcon(true)
-                                .build();
-
-                        chatView.receive(message);
+                        chatView.receive(getReceiverMessage(messageText, calendar));
                     }
                 }
             }
@@ -294,14 +277,10 @@ public class ChatFragment extends Fragment {
                 ChatModel chatModel = dataSnapshot.getValue(ChatModel.class);
 
                 if (!chatModel.getSenderID().equals(senderUser.getId())) {
-                    Message message = new Message.Builder()
-                            .setUser(receiverUser)
-                            .setRight(false)
-                            .setText(chatModel.getMessage())
-                            .hideIcon(true)
-                            .build();
+                    Calendar timeStamp = Calendar.getInstance();
+                    timeStamp.setTimeInMillis(chatModel.getTimeStamp());
 
-                    chatView.receive(message);
+                    chatView.receive(getReceiverMessage(chatModel.getMessage(), timeStamp));
                 }
             }
 
@@ -321,6 +300,26 @@ public class ChatFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+    }
+
+    private Message getSenderMessage(String message, Calendar timeStamp) {
+        return new Message.Builder()
+                .setUser(senderUser)
+                .setRight(true)
+                .setText(message)
+                .setSendTime(timeStamp)
+                .hideIcon(true)
+                .build();
+    }
+
+    private Message getReceiverMessage(String message, Calendar timeStamp) {
+        return new Message.Builder()
+                .setUser(receiverUser)
+                .setRight(false)
+                .setText(message)
+                .setSendTime(timeStamp)
+                .hideIcon(true)
+                .build();
     }
 
     public interface ProfileSelectedListener {

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.fasterxml.uuid.Generators;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -102,12 +103,16 @@ public class ForumFragment extends Fragment {
                 final String title = titleEntry.getText().toString();
                 final String body = bodyEntry.getText().toString();
 
-                final String uID = Generators.randomBasedGenerator().generate().toString();
+                if (title.isEmpty()) {
+                    Toast.makeText(getContext(), "Title can't be empty!", Toast.LENGTH_SHORT).show();
+                } else {
+                    final String uID = Generators.randomBasedGenerator().generate().toString();
 
-                final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username);
+                    final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username);
 
-                addTopicToDatabase(topicModel);
-                listener.onOpenTopic(topicModel);
+                    addTopicToDatabase(topicModel);
+                    listener.onOpenTopic(topicModel);
+                }
             }
         });
         startTopicDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
