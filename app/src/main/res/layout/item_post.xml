@@ -21,20 +21,20 @@
 
     <TextView
         android:id="@+id/post_username_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="35dp"
         android:layout_marginEnd="19dp"
         android:text="@string/username"
         app:layout_constraintBaseline_toBaselineOf="@+id/post_timestamp_text"
         app:layout_constraintEnd_toStartOf="@+id/post_timestamp_text"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@id/post_body_text" />
 
     <TextView
         android:id="@+id/post_timestamp_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="122dp"
         android:text="@string/default_time_text"
         app:layout_constraintEnd_toEndOf="parent"

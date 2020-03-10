@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - PostViewAdapter.java
 https://inversepalindrome.com/
 */
@@ -39,7 +39,7 @@ public class PostViewAdapter extends FirebaseRecyclerAdapter<PostModel, PostView
     protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull PostModel postModel) {
         holder.setBodyText(postModel.getBody());
         holder.setUsernameText(postModel.getUsername());
-        holder.setTimeStampText(postModel.getTimeStamp());
+        holder.setTimeStampText(DateUtility.getDate(postModel.getTimeStampLong()));
         holder.setUsernameOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

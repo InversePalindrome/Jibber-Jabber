@@ -23,7 +23,6 @@ public class UserModel implements Parcelable {
             return new UserModel[size];
         }
     };
-
     private String uID;
     private String username;
     private String email;
@@ -47,20 +46,6 @@ public class UserModel implements Parcelable {
         this.email = in.readString();
         this.profileURI = in.readString();
         this.status = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.uID);
-        dest.writeString(this.username);
-        dest.writeString(this.email);
-        dest.writeString(this.profileURI);
-        dest.writeString(this.status);
     }
 
     public String getuID() {
@@ -101,5 +86,19 @@ public class UserModel implements Parcelable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.uID);
+        dest.writeString(this.username);
+        dest.writeString(this.email);
+        dest.writeString(this.profileURI);
+        dest.writeString(this.status);
     }
 }

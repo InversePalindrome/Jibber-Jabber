@@ -7,18 +7,15 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-
-import android.text.format.DateFormat;
-
-import java.util.Calendar;
-import java.util.Locale;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class DateUtility {
-    public static String getDate(long time) {
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis(time * 1000);
-        String date = DateFormat.format("dd-MM-yyyy", cal).toString();
-        return date;
+    public static String getDate(Long timeStamp) {
+        Date date = new Date(timeStamp);
+        Format format = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+        return format.format(date);
     }
 }

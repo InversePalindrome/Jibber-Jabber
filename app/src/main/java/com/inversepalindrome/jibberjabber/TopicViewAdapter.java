@@ -35,7 +35,10 @@ public class TopicViewAdapter extends FirebaseRecyclerAdapter<TopicModel, TopicV
         holder.setTitleText(topicModel.getTitle());
         holder.setBodyText(topicModel.getBody());
         holder.setUsernameText(topicModel.getUsername());
-        holder.setTimeStampText(topicModel.getTimeStamp());
+
+        String timeStamp = DateUtility.getDate(topicModel.getTimeStampLong());
+
+        holder.setTimeStampText(timeStamp);
         holder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

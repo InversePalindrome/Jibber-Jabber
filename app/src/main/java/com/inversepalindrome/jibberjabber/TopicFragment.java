@@ -117,7 +117,7 @@ public class TopicFragment extends Fragment {
 
     private void initializePostViewAdapter(String topicID) {
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
-        Query query = topicsReference.child(topicID);
+        Query query = topicsReference.child(topicID).orderByChild(Constants.DATABASE_TIMESTAMP_NODE);
 
         FirebaseRecyclerOptions<PostModel> options = new FirebaseRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class).build();
@@ -127,6 +127,8 @@ public class TopicFragment extends Fragment {
 
     private void setupPostView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
 
         postView.setLayoutManager(linearLayoutManager);
         postView.setItemAnimator(new DefaultItemAnimator());
@@ -142,7 +144,7 @@ public class TopicFragment extends Fragment {
         titleText.setText(topicModel.getTitle());
         bodyText.setText(topicModel.getBody());
         usernameText.setText(topicModel.getUsername());
-        timeStampText.setText(topicModel.getTimeStamp());
+        timeStampText.setText(DateUtility.getDate(topicModel.getTimeStampLong()));
     }
 
     private void setupTopicCallbacks() {
@@ -169,9 +171,7 @@ public class TopicFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final String post = postEntry.getText().toString();
-                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
-
-                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName(), timeStamp);
+                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName());
 
                 addPostToDatabase(postModel);
 

@@ -7,13 +7,15 @@ https://inversepalindrome.com/
 
 package com.inversepalindrome.jibberjabber;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
+
 
 public class TopicModel implements Parcelable {
-    public static final Parcelable.Creator<TopicModel> CREATOR = new Parcelable.Creator<TopicModel>() {
+    public static final Creator<TopicModel> CREATOR = new Creator<TopicModel>() {
         @Override
         public TopicModel createFromParcel(Parcel source) {
             return new TopicModel(source);
@@ -24,24 +26,25 @@ public class TopicModel implements Parcelable {
             return new TopicModel[size];
         }
     };
-
     private String topicID;
     private String title;
     private String body;
     private String senderID;
     private String username;
-    private String timeStamp;
+    private Object timeStamp;
+    private Long timeStampLong;
 
     public TopicModel() {
     }
 
-    public TopicModel(String topicID, String title, String body, String senderID, String username, String timeStamp) {
+    public TopicModel(String topicID, String title, String body, String senderID, String username) {
         this.topicID = topicID;
         this.title = title;
         this.body = body;
         this.senderID = senderID;
         this.username = username;
-        this.timeStamp = timeStamp;
+        this.timeStamp = ServerValue.TIMESTAMP;
+        this.timeStampLong = System.currentTimeMillis();
     }
 
     protected TopicModel(Parcel in) {
@@ -50,22 +53,7 @@ public class TopicModel implements Parcelable {
         this.body = in.readString();
         this.senderID = in.readString();
         this.username = in.readString();
-        this.timeStamp = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.topicID);
-        dest.writeString(this.title);
-        dest.writeString(this.body);
-        dest.writeString(this.senderID);
-        dest.writeString(this.username);
-        dest.writeString(this.timeStamp);
+        this.timeStampLong = (Long) in.readValue(Long.class.getClassLoader());
     }
 
     public String getTopicID() {
@@ -108,11 +96,31 @@ public class TopicModel implements Parcelable {
         this.username = username;
     }
 
-    public String getTimeStamp() {
+    public Object getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimeStamp(Long timeStamp) {
+        this.timeStampLong = timeStamp;
+    }
+
+    @Exclude
+    public Long getTimeStampLong() {
+        return timeStampLong;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.topicID);
+        dest.writeString(this.title);
+        dest.writeString(this.body);
+        dest.writeString(this.senderID);
+        dest.writeString(this.username);
+        dest.writeValue(this.timeStampLong);
     }
 }

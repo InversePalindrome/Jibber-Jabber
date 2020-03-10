@@ -102,10 +102,9 @@ public class ForumFragment extends Fragment {
                 final String title = titleEntry.getText().toString();
                 final String body = bodyEntry.getText().toString();
 
-                final String timeStamp = DateUtility.getDate(System.currentTimeMillis() / 1000);
-
                 final String uID = Generators.randomBasedGenerator().generate().toString();
-                final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username, timeStamp);
+
+                final TopicModel topicModel = new TopicModel(uID, title, body, senderID, username);
 
                 addTopicToDatabase(topicModel);
                 listener.onOpenTopic(topicModel);
@@ -130,11 +129,11 @@ public class ForumFragment extends Fragment {
 
         DatabaseReference topicsReference = database.getReference().child(Constants.DATABASE_TOPICS_NODE);
         topicsReference.child(topicModel.getTopicID());
-
     }
 
     private void initializeTopicViewAdapter() {
-        Query query = database.getReference().child(Constants.DATABASE_FORUM_NODE);
+        Query query = database.getReference().child(Constants.DATABASE_FORUM_NODE).orderByChild("timeStamp");
+
         FirebaseRecyclerOptions<TopicModel> options = new FirebaseRecyclerOptions.Builder<TopicModel>
                 ().setQuery(query, TopicModel.class).build();
 
@@ -143,6 +142,8 @@ public class ForumFragment extends Fragment {
 
     private void setupTopicView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
 
         topicView.setLayoutManager(linearLayoutManager);
         topicView.setItemAnimator(new DefaultItemAnimator());
