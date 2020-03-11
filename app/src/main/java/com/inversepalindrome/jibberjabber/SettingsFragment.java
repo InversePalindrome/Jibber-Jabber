@@ -185,7 +185,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final EditText emailEntry = emailView.findViewById(R.id.change_email_entry);
-                final String newEmail = emailEntry.getText().toString();
+                final String newEmail = emailEntry.getText().toString().toLowerCase().trim();
 
                 if (TextUtils.isEmpty(newEmail)) {
                     Toast.makeText(getActivity(), "Please enter email!", Toast.LENGTH_SHORT).show();
@@ -228,7 +228,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final EditText passwordEntry = passwordView.findViewById(R.id.change_password_entry);
-                final String newPassword = passwordEntry.getText().toString();
+                final String newPassword = passwordEntry.getText().toString().trim();
 
                 if (TextUtils.isEmpty(newPassword)) {
                     Toast.makeText(getActivity(), "Please enter password!", Toast.LENGTH_SHORT).show();

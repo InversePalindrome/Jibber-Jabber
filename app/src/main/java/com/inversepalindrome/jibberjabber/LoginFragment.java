@@ -101,8 +101,8 @@ public class LoginFragment extends Fragment {
     }
 
     private void loginUser() {
-        final String email = emailEntry.getText().toString().toLowerCase();
-        final String password = passwordEntry.getText().toString();
+        final String email = emailEntry.getText().toString().toLowerCase().trim();
+        final String password = passwordEntry.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getContext(), "Please enter email!", Toast.LENGTH_SHORT).show();

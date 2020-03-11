@@ -69,10 +69,10 @@ public class RegisterFragment extends Fragment {
     }
 
     private void registerUser() {
-        final String username = usernameEntry.getText().toString();
-        final String email = emailEntry.getText().toString().toLowerCase();
-        final String password = passwordEntry.getText().toString();
-        final String rePassword = rePasswordEntry.getText().toString();
+        final String username = usernameEntry.getText().toString().trim();
+        final String email = emailEntry.getText().toString().toLowerCase().trim();
+        final String password = passwordEntry.getText().toString().trim();
+        final String rePassword = rePasswordEntry.getText().toString().trim();
 
         if (TextUtils.isEmpty(username)) {
             Toast.makeText(getContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
