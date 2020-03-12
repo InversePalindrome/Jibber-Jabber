@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - ChatFragment.java
 https://inversepalindrome.com/
 */
@@ -94,8 +94,8 @@ public class ChatFragment extends Fragment {
     }
 
     private void customizeChatView() {
-        chatView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.darkerWhite));
-        chatView.setRightBubbleColor(ContextCompat.getColor(getActivity(), R.color.lightGrey));
+        chatView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.darkerWhite));
+        chatView.setRightBubbleColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
         chatView.setLeftBubbleColor(Color.WHITE);
         chatView.setInputTextHint("New message...");
         chatView.setSendButtonColor(Color.BLACK);
@@ -112,8 +112,7 @@ public class ChatFragment extends Fragment {
                     Toast.makeText(getContext(), "Message can't be empty!", Toast.LENGTH_SHORT).show();
                 } else {
                     final Long tsLong = System.currentTimeMillis();
-                    Calendar timeStamp = Calendar.getInstance();
-                    timeStamp.setTimeInMillis(tsLong);
+                    Calendar timeStamp = DateUtility.getCurrentTimeStamp(tsLong);
 
                     chatView.send(getSenderMessage(inputMessage, timeStamp));
                     chatView.setInputText("");
@@ -253,8 +252,7 @@ public class ChatFragment extends Fragment {
                     final String senderID = childDataSnapshot.child(Constants.DATABASE_SENDER_NODE).getValue().toString();
                     final String timeStamp = childDataSnapshot.child(Constants.DATABASE_TIMESTAMP_NODE).getValue().toString();
 
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(Long.parseLong(timeStamp));
+                    Calendar calendar = DateUtility.getCurrentTimeStamp(Long.parseLong(timeStamp));
 
                     if (senderUser.getId().equals(senderID)) {
                         chatView.send(getSenderMessage(messageText, calendar));
@@ -277,8 +275,7 @@ public class ChatFragment extends Fragment {
                 ChatModel chatModel = dataSnapshot.getValue(ChatModel.class);
 
                 if (!chatModel.getSenderID().equals(senderUser.getId())) {
-                    Calendar timeStamp = Calendar.getInstance();
-                    timeStamp.setTimeInMillis(chatModel.getTimeStamp());
+                    Calendar timeStamp = DateUtility.getCurrentTimeStamp(chatModel.getTimeStamp());
 
                     chatView.receive(getReceiverMessage(chatModel.getMessage(), timeStamp));
                 }

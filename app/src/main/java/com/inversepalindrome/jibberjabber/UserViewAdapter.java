@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - UserViewAdapter.java
 https://inversepalindrome.com/
 */
@@ -26,7 +26,7 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -94,7 +94,7 @@ public class UserViewAdapter extends FirebaseRecyclerAdapter<UserModel, UserView
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        private ConstraintLayout layout;
+        private LinearLayoutCompat layout;
         private TextView usernameText;
         private CircleImageView profilePicture;
 

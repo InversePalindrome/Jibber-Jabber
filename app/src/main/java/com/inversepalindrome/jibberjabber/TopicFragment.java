@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -170,12 +171,16 @@ public class TopicFragment extends Fragment {
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String post = postEntry.getText().toString();
-                PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName());
+                final String post = postEntry.getText().toString().trim();
+                if (post.isEmpty()) {
+                    Toast.makeText(getContext(), "Post can't be empty!", Toast.LENGTH_SHORT).show();
+                } else {
+                    PostModel postModel = new PostModel(post, currentUser.getUid(), currentUser.getDisplayName());
 
-                addPostToDatabase(postModel);
+                    addPostToDatabase(postModel);
 
-                updateUIAfterPost();
+                    updateUIAfterPost();
+                }
             }
         });
     }

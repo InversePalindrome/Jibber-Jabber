@@ -123,6 +123,7 @@
         android:layout_marginStart="45dp"
         android:layout_marginEnd="45dp"
         android:layout_marginBottom="20dp"
+        android:maxLength="24"
         android:ems="10"
         android:fontFamily="sans-serif"
         android:hint="@string/username"

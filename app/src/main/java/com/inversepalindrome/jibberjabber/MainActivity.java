@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements
 
         storeUserIDInSharedPreferences(auth.getCurrentUser().getUid());
 
-        navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.main_bottom_nav_view);
         navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void switchFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.main_layout, fragment);
+        transaction.replace(R.id.main_fragment_container, fragment);
         transaction.commit();
     }
 

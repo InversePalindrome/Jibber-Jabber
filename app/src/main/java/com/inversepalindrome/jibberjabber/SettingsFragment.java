@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - SettingsFragment.java
 https://inversepalindrome.com/
 */
@@ -67,9 +67,9 @@ public class SettingsFragment extends Fragment {
     private Button logOutButton;
     private Button changeEmailButton;
     private Button changePasswordButton;
+    private Button changeStatusButton;
     private FloatingActionButton galleryButton;
     private FloatingActionButton cameraButton;
-    private FloatingActionButton statusButton;
     private EasyImage profileDialog;
 
     @Override
@@ -92,10 +92,10 @@ public class SettingsFragment extends Fragment {
         statusText = view.findViewById(R.id.settings_status_text);
         changeEmailButton = view.findViewById(R.id.settings_change_email_button);
         changePasswordButton = view.findViewById(R.id.settings_change_password_button);
+        changeStatusButton = view.findViewById(R.id.settings_change_status_button);
         logOutButton = view.findViewById(R.id.settings_log_out_button);
         galleryButton = view.findViewById(R.id.settings_gallery_button);
         cameraButton = view.findViewById(R.id.settings_camera_button);
-        statusButton = view.findViewById(R.id.settings_edit_status_button);
 
         setupSettingsButtonCallbacks();
 
@@ -141,7 +141,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void openChangeStatusDialog() {
-        AlertDialog.Builder statusDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
+        AlertDialog.Builder statusDialogBuilder = new AlertDialog.Builder(getContext(), R.style.CustomDialogTheme);
         statusDialogBuilder.setTitle("Change Status");
 
         final View statusView = getLayoutInflater().inflate(R.layout.dialog_change_status, null);
@@ -175,7 +175,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void openChangeEmailDialog() {
-        AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
+        AlertDialog.Builder emailDialogBuilder = new AlertDialog.Builder(getContext(), R.style.CustomDialogTheme);
         emailDialogBuilder.setTitle("Change Email");
 
         final View emailView = getLayoutInflater().inflate(R.layout.dialog_change_email, null);
@@ -218,7 +218,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void openChangePasswordDialog() {
-        AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.CustomDialogTheme);
+        AlertDialog.Builder passwordDialogBuilder = new AlertDialog.Builder(getContext(), R.style.CustomDialogTheme);
         passwordDialogBuilder.setTitle("Change Password");
 
         final View passwordView = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
@@ -228,14 +228,11 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final EditText passwordEntry = passwordView.findViewById(R.id.change_password_entry);
+                final EditText rePasswordEntry = passwordView.findViewById(R.id.change_repassword_entry);
                 final String newPassword = passwordEntry.getText().toString().trim();
+                final String rePassword = rePasswordEntry.getText().toString().trim();
 
-                if (TextUtils.isEmpty(newPassword)) {
-                    Toast.makeText(getActivity(), "Please enter password!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (newPassword.length() < Constants.MIN_PASSWORD_LENGTH) {
-                    Toast.makeText(getActivity(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
+                if (!PasswordValidator.isPasswordValid(getContext(), newPassword, rePassword)) {
                     return;
                 }
 
@@ -243,9 +240,9 @@ public class SettingsFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(getActivity(), "Password successfully updated!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Password successfully updated!", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getActivity(), "Password failed to be updated!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Password failed to be updated!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -316,7 +313,7 @@ public class SettingsFragment extends Fragment {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Error: Profile image couldn't be uploaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error: Profile image couldn't be uploaded", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -377,7 +374,7 @@ public class SettingsFragment extends Fragment {
                 openChangePasswordDialog();
             }
         });
-        statusButton.setOnClickListener(new OnClickListener() {
+        changeStatusButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 openChangeStatusDialog();

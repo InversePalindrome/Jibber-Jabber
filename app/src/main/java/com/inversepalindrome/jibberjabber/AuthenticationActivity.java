@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - AuthenticationActivity.java
 https://inversepalindrome.com/
 */
@@ -34,6 +34,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
         if (auth.getCurrentUser() != null) {
             startActivity(new Intent(AuthenticationActivity.this, MainActivity.class));
             finish();
+            return;
         }
 
         fragmentManager = getSupportFragmentManager();

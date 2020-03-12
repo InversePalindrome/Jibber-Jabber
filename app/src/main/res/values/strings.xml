@@ -19,6 +19,7 @@
     <string name="about">About:</string>
     <string name="edit_about">Edit About</string>
     <string name="log_out">Log Out</string>
+    <string name="change_status">Change Status</string>
     <string name="change_email">Change Email</string>
     <string name="change_password">Change Password</string>
     <string name="reset_password">Reset Password</string>

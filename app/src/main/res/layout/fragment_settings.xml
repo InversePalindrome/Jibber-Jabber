@@ -5,139 +5,124 @@
     android:id="@+id/settings_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:contentDescription="@string/profile_picture"
     tools:context=".SettingsFragment">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/settings_profile_image"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="99dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="35dp"
-        app:layout_constraintBottom_toTopOf="@+id/settings_username_text"
-        app:layout_constraintEnd_toStartOf="@+id/settings_camera_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="88dp"
+        tools:layout_editor_absoluteY="102dp">
 
-    <Button
-        android:id="@+id/settings_log_out_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="21dp"
-        android:layout_marginEnd="49dp"
-        android:fontFamily="@font/baloo"
-        android:text="@string/log_out"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_change_password_button" />
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/settings_profile_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
 
-    <Button
-        android:id="@+id/settings_change_password_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="49dp"
-        android:fontFamily="@font/baloo"
-        android:text="@string/change_password"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_change_email_button" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/settings_profile_image"
+                android:layout_width="256dp"
+                android:layout_height="256dp"
+                android:layout_gravity="center"
+                android:src="@drawable/default_profile_icon" />
 
-    <Button
-        android:id="@+id/settings_change_email_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="29dp"
-        android:layout_marginEnd="49dp"
-        android:fontFamily="@font/baloo"
-        android:text="@string/change_email"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_edit_status_button" />
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/settings_image_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/settings_username_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="49dp"
-        android:layout_marginEnd="49dp"
-        android:layout_marginBottom="33dp"
-        android:fontFamily="@font/baloo"
-        android:singleLine="true"
-        android:text="@string/username"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/settings_edit_status_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/settings_gallery_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="0dp"
+                    android:focusable="true"
+                    android:scaleType="center"
+                    android:src="@drawable/gallery_icon" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/settings_camera_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="33dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/camera_icon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_profile_image"
-        app:layout_constraintTop_toBottomOf="@+id/settings_gallery_button" />
+                <Space
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/settings_gallery_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="46dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/gallery_icon"
-        app:layout_constraintStart_toEndOf="@+id/settings_profile_image"
-        app:layout_constraintTop_toTopOf="@+id/settings_profile_image" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/settings_camera_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="0dp"
+                    android:focusable="true"
+                    android:scaleType="center"
+                    android:src="@drawable/camera_icon" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <TextView
-        android:id="@+id/settings_status_text"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="18dp"
-        android:fontFamily="@font/baloo"
-        android:textAlignment="center"
-        android:textColor="#747272"
-        android:textSize="22sp"
-        android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/settings_change_email_button"
-        app:layout_constraintEnd_toStartOf="@+id/settings_edit_status_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_username_text"
-        tools:text="@string/default_status" />
+            <TextView
+                android:id="@+id/settings_username_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:singleLine="true"
+                android:text="@string/username"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="24sp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/settings_edit_status_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="320dp"
-        android:clickable="true"
-        android:scaleType="center"
-        android:src="@drawable/pencil_edit_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_status_text" />
+            <TextView
+                android:id="@+id/settings_status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:gravity="center"
+                android:maxLines="3"
+                android:minLines="1"
+                android:textAlignment="center"
+                android:textColor="#747272"
+                android:textSize="22sp"
+                tools:text="@string/default_status" />
+
+            <Button
+                android:id="@+id/settings_change_status_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:scaleType="center"
+                android:text="@string/change_status"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/settings_change_email_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:text="@string/change_email"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/settings_change_password_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:text="@string/change_password"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/settings_log_out_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo"
+                android:text="@string/log_out"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

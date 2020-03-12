@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - MessagingService.java
 https://inversepalindrome.com/
 */
@@ -10,6 +10,7 @@ package com.inversepalindrome.jibberjabber;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -57,25 +58,27 @@ public class MessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(notificationChannel);
         }
 
-        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-
-        Map<String, String> messageData = remoteMessage.getData();
-
-        String senderID = messageData.get("senderID");
-        String receiverID = messageData.get("receiverID");
-
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Map<String, String> messageData = remoteMessage.getData();
+
+                String senderID = messageData.get("senderID");
+                String receiverID = messageData.get("receiverID");
+
                 UserModel senderUserModel = dataSnapshot.child(senderID).getValue(UserModel.class);
                 UserModel receiverUserModel = dataSnapshot.child(receiverID).getValue(UserModel.class);
 
+                Intent chatIntent = new Intent(getApplicationContext(), ChatActivity.class);
                 //Sender and receiver interchanged when opening in new device
-                intent.putExtra("sender", receiverUserModel);
-                intent.putExtra("receiver", senderUserModel);
+                chatIntent.putExtra("sender", receiverUserModel);
+                chatIntent.putExtra("receiver", senderUserModel);
 
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+                TaskStackBuilder taskStack = TaskStackBuilder.create(getApplicationContext());
+                taskStack.addNextIntentWithParentStack(chatIntent);
+
+                PendingIntent pendingIntent = taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
                         R.drawable.jibber_jabber_icon);

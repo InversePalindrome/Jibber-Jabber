@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019 Inverse Palindrome
+Copyright (c) 2020 Inverse Palindrome
 Jibber Jabber - RegisterFragment.java
 https://inversepalindrome.com/
 */
@@ -74,24 +74,7 @@ public class RegisterFragment extends Fragment {
         final String password = passwordEntry.getText().toString().trim();
         final String rePassword = rePasswordEntry.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username)) {
-            Toast.makeText(getContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(getContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
-            Toast.makeText(getContext(), "Please enter password!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!TextUtils.equals(password, rePassword)) {
-            Toast.makeText(getContext(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
-            Toast.makeText(getContext(), "Passwords needs to be longer than or equal to 8 characters!", Toast.LENGTH_SHORT).show();
+        if (!isRegistrationValid(username, email, password, rePassword)) {
             return;
         }
 
@@ -129,6 +112,19 @@ public class RegisterFragment extends Fragment {
 
         DatabaseReference usersReference = database.getReference().child(Constants.DATABASE_USERS_NODE);
         usersReference.child(user.getUid()).setValue(userModel);
+    }
+
+    private boolean isRegistrationValid(String username, String email, String password, String rePassword) {
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(getContext(), "Please enter username!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getContext(), "Please enter email!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return PasswordValidator.isPasswordValid(getContext(), password, rePassword);
     }
 
     private void setupRegisterCallbacks() {
